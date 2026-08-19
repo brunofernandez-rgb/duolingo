@@ -46,7 +46,7 @@ CREATE TABLE progreso (
     CONSTRAINT fk_progreso_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
     CONSTRAINT fk_progreso_leccion FOREIGN KEY (leccion_id) REFERENCES leccion(id) ON DELETE CASCADE
 );
-
+6
 CREATE TABLE usuario_cursos (
     usuario_id INT NOT NULL,
     curso_id INT NOT NULL,
