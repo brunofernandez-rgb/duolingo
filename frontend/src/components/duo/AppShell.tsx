@@ -42,7 +42,7 @@ export function LanguagePicker() {
         aria-label={t("auth.uiLang")}
         className="flex items-center gap-2 rounded-xl border-2 border-border px-3 py-1.5 text-sm font-bold text-muted-foreground hover:bg-secondary"
       >
-        <span>{UI_LANGS.find((l) => l.code === lang)?.flag}</span>
+        <img className="h-5 w-7 rounded object-cover" src={UI_LANGS.find((l) => l.code === lang)?.flag} alt="Idioma de la aplicación" />
         <span className="hidden sm:inline">{UI_LANGS.find((l) => l.code === lang)?.label}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="rounded-2xl">
@@ -52,7 +52,7 @@ export function LanguagePicker() {
             onClick={() => setUiLang(l.code)}
             className="cursor-pointer rounded-xl font-bold"
           >
-            <span className="mr-2">{l.flag}</span>
+            <img className="mr-2 h-5 w-7 rounded object-cover" src={l.flag} alt={`Bandera de ${l.label}`} />
             {l.label}
           </DropdownMenuItem>
         ))}

@@ -14,31 +14,31 @@ export const IDIOMAS: Idioma[] = [
   {
     id: "idi_en",
     codigo: "en",
-    bandera: "🇬🇧",
+    bandera: "https://flagcdn.com/w80/us.png",
     nombre: { es: "Inglés", en: "English", pt: "Inglês" },
   },
   {
     id: "idi_fr",
     codigo: "fr",
-    bandera: "🇫🇷",
+    bandera: "https://flagcdn.com/w80/fr.png",
     nombre: { es: "Francés", en: "French", pt: "Francês" },
   },
   {
     id: "idi_de",
     codigo: "de",
-    bandera: "🇩🇪",
+    bandera: "https://flagcdn.com/w80/de.png",
     nombre: { es: "Alemán", en: "German", pt: "Alemão" },
   },
   {
     id: "idi_it",
     codigo: "it",
-    bandera: "🇮🇹",
+    bandera: "https://flagcdn.com/w80/it.png",
     nombre: { es: "Italiano", en: "Italian", pt: "Italiano" },
   },
   {
     id: "idi_pt",
     codigo: "pt",
-    bandera: "🇧🇷",
+    bandera: "https://flagcdn.com/w80/br.png",
     nombre: { es: "Portugués", en: "Portuguese", pt: "Português" },
   },
 ];

@@ -68,7 +68,7 @@ function Landing() {
                 key={i.id}
                 className="rounded-xl border-2 border-border px-3 py-1.5 text-sm font-extrabold text-muted-foreground"
               >
-                {i.bandera} {i.nombre[lang]}
+                <img className="h-5 w-7 rounded object-cover" src={i.bandera} alt={`Bandera de ${i.nombre[lang]}`} /> {i.nombre[lang]}
               </li>
             ))}
           </ul>

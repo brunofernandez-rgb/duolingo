@@ -1,9 +1,9 @@
 export type UiLang = "es" | "en" | "pt";
 
 export const UI_LANGS: { code: UiLang; label: string; flag: string }[] = [
-  { code: "es", label: "Español", flag: "🇪🇸" },
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "es", label: "Español", flag: "https://flagcdn.com/w40/ar.png" },
+  { code: "en", label: "English", flag: "https://flagcdn.com/w40/us.png" },
+  { code: "pt", label: "Português", flag: "https://flagcdn.com/w40/br.png" },
 ];
 
 type Dict = Record<string, string>;

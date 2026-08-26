@@ -9,12 +9,12 @@ import { api } from "@/lib/api";
 import { useT } from "@/lib/useT";
 
 const BANDERAS: Record<string, string> = {
-  es: "🇪🇸",
-  en: "🇬🇧",
-  pt: "🇧🇷",
-  it: "🇮🇹",
-  fr: "🇫🇷",
-  de: "🇩🇪",
+  es: "https://flagcdn.com/w80/ar.png",
+  en: "https://flagcdn.com/w80/us.png",
+  pt: "https://flagcdn.com/w80/br.png",
+  it: "https://flagcdn.com/w80/it.png",
+  fr: "https://flagcdn.com/w80/fr.png",
+  de: "https://flagcdn.com/w80/de.png",
 };
 const NIVELES = ["A1", "A2", "B1", "B2", "C1"];
 
@@ -60,10 +60,9 @@ function Aprender({ user }: { user: { id: string } }) {
         {(idiomasQuery.data ?? []).map((idioma) => (
           <article key={idioma.id} className="rounded-3xl border-2 border-b-4 border-border bg-card p-5">
             <div className="flex items-center gap-4">
-              <span className="text-4xl">{BANDERAS[idioma.codigo] ?? "🌐"}</span>
+              <img className="h-10 w-14 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={`Bandera de ${idioma.nombre}`} />
               <div>
                 <h2 className="text-xl font-extrabold">{idioma.nombre}</h2>
-                <p className="text-sm font-bold text-muted-foreground">{idioma.codigo.toUpperCase()}</p>
               </div>
             </div>
             <label className="mt-5 block text-sm font-extrabold">

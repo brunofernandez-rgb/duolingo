@@ -7,12 +7,12 @@ import { useT } from "@/lib/useT";
 import { api } from "@/lib/api";
 
 const BANDERAS: Record<string, string> = {
-  es: "🇪🇸",
-  en: "🇬🇧",
-  pt: "🇧🇷",
-  it: "🇮🇹",
-  fr: "🇫🇷",
-  de: "🇩🇪",
+  es: "https://flagcdn.com/w80/ar.png",
+  en: "https://flagcdn.com/w80/us.png",
+  pt: "https://flagcdn.com/w80/br.png",
+  it: "https://flagcdn.com/w80/it.png",
+  fr: "https://flagcdn.com/w80/fr.png",
+  de: "https://flagcdn.com/w80/de.png",
 };
 
 export const Route = createFileRoute("/cursos")({
@@ -77,7 +77,7 @@ function Cursos({ user }: { user: { id: string } }) {
         return (
           <section key={idioma.id} className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-extrabold">
-              <span className="text-2xl">{BANDERAS[idioma.codigo] ?? "🌐"}</span> {idioma.nombre}
+              <img className="h-6 w-9 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={`Bandera de ${idioma.nombre}`} /> {idioma.nombre}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {cursosIdioma
@@ -99,7 +99,7 @@ function Cursos({ user }: { user: { id: string } }) {
                             {t("course.lessons")}
                           </p>
                         </div>
-                        <span className="text-3xl">{BANDERAS[idioma.codigo] ?? "🌐"}</span>
+                        <img className="h-8 w-12 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={`Bandera de ${idioma.nombre}`} />
                       </div>
 
                       <div className="mt-4">
