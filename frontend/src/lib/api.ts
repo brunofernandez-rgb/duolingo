@@ -9,6 +9,12 @@ export interface ApiUsuario {
   fecha_ultima_actividad: string | null;
 }
 
+export interface ApiIdioma {
+  id: number;
+  nombre: string;
+  codigo: string;
+}
+
 export interface ApiCurso {
   id: number;
   idioma_id: number;
@@ -121,6 +127,7 @@ export const api = {
       body: JSON.stringify({ nombre, email, password }),
     }),
   usuario: (id: number) => request<ApiUsuario>(`/usuarios/${id}`),
+  idiomas: () => request<ApiIdioma[]>("/idiomas/"),
   cursos: () => request<ApiCurso[]>("/cursos/"),
   curso: (id: number) => request<ApiCurso>(`/cursos/${id}`),
   lecciones: (cursoId: number) => request<ApiLeccion[]>(`/lecciones/curso/${cursoId}`),

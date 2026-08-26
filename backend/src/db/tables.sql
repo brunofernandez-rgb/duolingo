@@ -75,3 +75,29 @@ CREATE TABLE amigos (
     CONSTRAINT fk_amigos_usuario_b FOREIGN KEY (usuario_b) REFERENCES usuario(id) ON DELETE CASCADE,
     CONSTRAINT chk_amigos_diferentes CHECK (usuario_a <> usuario_b)
 );
+
+INSERT INTO idioma (nombre, codigo) VALUES
+    ('Español', 'es'),
+    ('Inglés', 'en'),
+    ('Portugués', 'pt'),
+    ('Italiano', 'it'),
+    ('Francés', 'fr'),
+    ('Alemán', 'de')
+ON CONFLICT (codigo) DO NOTHING;
+
+INSERT INTO curso (idioma_id, nivel)
+SELECT idioma.id, 'A1'
+FROM idioma
+WHERE NOT EXISTS (
+    SELECT 1 FROM curso
+    WHERE curso.idioma_id = idioma.id AND curso.nivel = 'A1'
+);
+
+INSERT INTO curso (idioma_id, nivel)
+SELECT idioma.id, niveles.nivel
+FROM idioma
+CROSS JOIN (VALUES ('A2'), ('B1'), ('B2'), ('C1')) AS niveles(nivel)
+WHERE NOT EXISTS (
+    SELECT 1 FROM curso
+    WHERE curso.idioma_id = idioma.id AND curso.nivel = niveles.nivel
+);

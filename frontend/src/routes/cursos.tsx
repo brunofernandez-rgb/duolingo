@@ -4,10 +4,21 @@ import { toast } from "sonner";
 import { RequireAuth } from "@/components/duo/RequireAuth";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { useT } from "@/lib/useT";
-import { IDIOMAS } from "@/data/content";
 import { api } from "@/lib/api";
 
+const BANDERAS: Record<string, string> = {
+  es: "🇪🇸",
+  en: "🇬🇧",
+  pt: "🇧🇷",
+  it: "🇮🇹",
+  fr: "🇫🇷",
+  de: "🇩🇪",
+};
+
 export const Route = createFileRoute("/cursos")({
+  validateSearch: (search: Record<string, unknown>): { idioma?: string } => ({
+    idioma: typeof search.idioma === "string" ? search.idioma : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Elegí un idioma para estudiar — Pingu" },
@@ -29,11 +40,13 @@ export const Route = createFileRoute("/cursos")({
 });
 
 function Cursos({ user }: { user: { id: string } }) {
-  const { t, lang } = useT();
+  const { t } = useT();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const userId = Number(user.id);
+  const { idioma: idiomaSeleccionado } = Route.useSearch();
   const cursosQuery = useQuery({ queryKey: ["cursos"], queryFn: api.cursos });
+  const idiomasQuery = useQuery({ queryKey: ["idiomas"], queryFn: api.idiomas });
   const inscripcionesQuery = useQuery({
     queryKey: ["inscripciones", userId],
     queryFn: () => api.inscripciones(userId),
@@ -45,8 +58,8 @@ function Cursos({ user }: { user: { id: string } }) {
     onError: (error) => toast.error(error instanceof Error ? error.message : t("course.enrolled")),
   });
 
-  if (cursosQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando cursos...</p>;
-  if (cursosQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
+  if (cursosQuery.isLoading || idiomasQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando cursos...</p>;
+  if (cursosQuery.isError || idiomasQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
   const cursos = cursosQuery.data ?? [];
   const inscripciones = new Set((inscripcionesQuery.data ?? []).map((item) => item.curso_id));
 
@@ -54,13 +67,17 @@ function Cursos({ user }: { user: { id: string } }) {
     <div className="space-y-8">
       <h1 className="text-2xl font-extrabold">{t("course.choose")}</h1>
 
-      {IDIOMAS.map((idioma) => {
-        const cursosIdioma = cursos.filter((curso) => curso.idioma_codigo === idioma.codigo);
+      {(idiomasQuery.data ?? []).map((idioma) => {
+        const cursosIdioma = cursos.filter(
+          (curso) => inscripciones.has(curso.id) &&
+            curso.idioma_codigo === idioma.codigo &&
+            (!idiomaSeleccionado || curso.idioma_codigo === idiomaSeleccionado),
+        );
         if (!cursosIdioma.length) return null;
         return (
           <section key={idioma.id} className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-extrabold">
-              <span className="text-2xl">{idioma.bandera}</span> {idioma.nombre[lang]}
+              <span className="text-2xl">{BANDERAS[idioma.codigo] ?? "🌐"}</span> {idioma.nombre}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {cursosIdioma
@@ -82,7 +99,7 @@ function Cursos({ user }: { user: { id: string } }) {
                             {t("course.lessons")}
                           </p>
                         </div>
-                        <span className="text-3xl">{idioma.bandera}</span>
+                        <span className="text-3xl">{BANDERAS[idioma.codigo] ?? "🌐"}</span>
                       </div>
 
                       <div className="mt-4">

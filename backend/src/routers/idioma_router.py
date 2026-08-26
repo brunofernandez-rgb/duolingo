@@ -17,6 +17,11 @@ def create_idioma(payload: CreateIdiomaSchema, db: Session = Depends(get_db)):
     return result
 
 
+@router.get("/", response_model=list[IdiomaResponseDTO])
+def list_idiomas(db: Session = Depends(get_db)):
+    return IdiomaService(db).list_all()
+
+
 @router.get("/{idioma_id}", response_model=IdiomaResponseDTO)
 def get_idioma(idioma_id: int, db: Session = Depends(get_db)):
     result = IdiomaService(db).get_by_id(idioma_id)

@@ -18,6 +18,9 @@ class IdiomaService:
         res = self.repo.get_by_id(idioma_id)
         return to_idioma_response(res) if res else None
 
+    def list_all(self) -> list[IdiomaResponseDTO]:
+        return [to_idioma_response(idioma) for idioma in self.repo.list_all()]
+
     def delete(self, idioma_id: int) -> bool:
         res = self.repo.get_by_id(idioma_id)
         if not res:

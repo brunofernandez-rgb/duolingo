@@ -15,6 +15,12 @@ class IdiomaRepository:
     def get_by_id(self, idioma_id: int) -> Idioma | None:
         return self.db.query(Idioma).filter(Idioma.id == idioma_id).first()
 
+    def get_by_codigo(self, codigo: str) -> Idioma | None:
+        return self.db.query(Idioma).filter(Idioma.codigo == codigo).first()
+
+    def list_all(self) -> list[Idioma]:
+        return self.db.query(Idioma).order_by(Idioma.nombre).all()
+
     def update(self, idioma: Idioma) -> Idioma:
         self.db.add(idioma)
         self.db.commit()
