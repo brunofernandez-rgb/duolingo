@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from src.dtos.usuario_dto import CreateUsuarioDTO, UsuarioResponseDTO
-from src.mappers.usuario_mapper import to_usuario_response
+from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
+from src.mappers.usuarios_mapper import to_usuario_response
 from src.repositories.usuario_repository import UsuarioRepository
 
 

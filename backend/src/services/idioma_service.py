@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.dtos.idioma_dto import CreateIdiomaDTO, IdiomaResponseDTO
-from src.mappers.idioma_mapper import to_idioma_response
+from src.mappers.idiomas_mapper import to_idioma_response
 from src.repositories.idioma_repository import IdiomaRepository
 
 
