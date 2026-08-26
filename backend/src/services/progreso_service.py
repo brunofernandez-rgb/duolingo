@@ -6,14 +6,14 @@ from src.mappers.progreso_mapper import to_progreso_response
 from src.repositories.leccion_repository import LeccionRepository
 from src.repositories.progreso_repository import ProgresoRepository
 from src.repositories.usuario_cursos_repository import UsuarioCursosRepository
-from src.repositories.usuario_repository import UsuarioRepository
+from src.repositories.usuario_repository import UsuariosRepository
 
 
 class ProgresoService:
     def __init__(self, db: Session):
         self.repo = ProgresoRepository(db)
         self.leccion_repo = LeccionRepository(db)
-        self.usuario_repo = UsuarioRepository(db)
+        self.usuario_repo = UsuariosRepository(db)
         self.usuario_cursos_repo = UsuarioCursosRepository(db)
 
     def registrar_intento(self, dto: CreateProgresoDTO) -> ProgresoResponseDTO | None:
