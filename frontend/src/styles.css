@@ -1,0 +1,206 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Sistema de diseño "Pingu" — inspirado en Duolingo pero con acentos celestes.
+ * Todos los colores en oklch y expuestos como tokens semánticos.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-shadow: var(--primary-shadow);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-shadow: var(--destructive-shadow);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-gold: var(--gold);
+  --color-gold-shadow: var(--gold-shadow);
+  --color-streak: var(--streak);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-display);
+  --font-display: var(--font-display);
+}
+
+:root {
+  --radius: 1rem;
+  --font-display:
+    "Nunito", ui-rounded, "Segoe UI Rounded", system-ui, -apple-system, sans-serif;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.32 0.015 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.32 0.015 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.015 250);
+
+  /* Celeste principal (#1CB0F6) */
+  --primary: oklch(0.708 0.148 237.4);
+  --primary-foreground: oklch(1 0 0);
+  --primary-shadow: oklch(0.63 0.145 240);
+  --primary-soft: oklch(0.955 0.028 234);
+
+  --secondary: oklch(0.973 0.002 250);
+  --secondary-foreground: oklch(0.45 0.015 250);
+  --muted: oklch(0.968 0.002 250);
+  --muted-foreground: oklch(0.68 0.008 250);
+  --accent: oklch(0.955 0.028 234);
+  --accent-foreground: oklch(0.52 0.13 240);
+
+  --destructive: oklch(0.643 0.211 24.5);
+  --destructive-foreground: oklch(1 0 0);
+  --destructive-shadow: oklch(0.56 0.2 24.5);
+  --destructive-soft: oklch(0.955 0.03 24.5);
+
+  --success: oklch(0.735 0.185 141);
+  --success-foreground: oklch(1 0 0);
+  --success-soft: oklch(0.955 0.06 141);
+
+  --gold: oklch(0.855 0.171 87);
+  --gold-shadow: oklch(0.75 0.16 78);
+  --streak: oklch(0.735 0.185 55);
+
+  --border: oklch(0.912 0.003 250);
+  --input: oklch(0.912 0.003 250);
+  --ring: oklch(0.708 0.148 237.4);
+
+  --chart-1: oklch(0.708 0.148 237.4);
+  --chart-2: oklch(0.855 0.171 87);
+  --chart-3: oklch(0.735 0.185 141);
+  --chart-4: oklch(0.735 0.185 55);
+  --chart-5: oklch(0.643 0.211 24.5);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.32 0.015 250);
+  --sidebar-primary: oklch(0.708 0.148 237.4);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.955 0.028 234);
+  --sidebar-accent-foreground: oklch(0.52 0.13 240);
+  --sidebar-border: oklch(0.912 0.003 250);
+  --sidebar-ring: oklch(0.708 0.148 237.4);
+}
+
+.dark {
+  --background: oklch(0.23 0.02 250);
+  --foreground: oklch(0.97 0.003 250);
+  --card: oklch(0.27 0.02 250);
+  --card-foreground: oklch(0.97 0.003 250);
+  --popover: oklch(0.27 0.02 250);
+  --popover-foreground: oklch(0.97 0.003 250);
+  --secondary: oklch(0.3 0.02 250);
+  --secondary-foreground: oklch(0.97 0.003 250);
+  --muted: oklch(0.3 0.02 250);
+  --muted-foreground: oklch(0.7 0.02 250);
+  --accent: oklch(0.34 0.05 240);
+  --accent-foreground: oklch(0.9 0.06 237);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --sidebar: oklch(0.27 0.02 250);
+  --sidebar-foreground: oklch(0.97 0.003 250);
+  --sidebar-accent: oklch(0.34 0.05 240);
+  --sidebar-accent-foreground: oklch(0.9 0.06 237);
+  --sidebar-border: oklch(1 0 0 / 12%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-display);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility duo-heading {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+@keyframes duo-pop {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes duo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@utility animate-duo-pop {
+  animation: duo-pop 0.28s ease-out both;
+}
+
+@utility animate-duo-float {
+  animation: duo-float 4s ease-in-out infinite;
+}
