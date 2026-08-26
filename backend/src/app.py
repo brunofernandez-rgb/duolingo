@@ -1,7 +1,21 @@
 from fastapi import FastAPI
 
 from src.middlewares.error_middleware import app_error_handler
-from src.routers import auth_router, user_router, pasajero_router, conductores_router
+from src.routers import (
+    amigos_router,
+    auth_router,
+    conductores_router,
+    curso_router,
+    idioma_router,
+    insignia_router,
+    leccion_router,
+    pasajero_router,
+    progreso_router,
+    user_router,
+    usuario_cursos_router,
+    usuario_insignias_router,
+    usuario_router,
+)
 from src.utils.errors import AppError
 
 app = FastAPI(title="Initial Structure API")
@@ -12,6 +26,15 @@ app.include_router(user_router.router, prefix="/api")
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(pasajero_router.router, prefix="/api")
 app.include_router(conductores_router.router, prefix="/api")
+app.include_router(usuario_router.router, prefix="/api")
+app.include_router(idioma_router.router, prefix="/api")
+app.include_router(curso_router.router, prefix="/api")
+app.include_router(leccion_router.router, prefix="/api")
+app.include_router(progreso_router.router, prefix="/api")
+app.include_router(usuario_cursos_router.router, prefix="/api")
+app.include_router(insignia_router.router, prefix="/api")
+app.include_router(usuario_insignias_router.router, prefix="/api")
+app.include_router(amigos_router.router, prefix="/api")
 # TODO: registrar product_router cuando se implemente
 # app.include_router(product_router.router, prefix="/api")
 
