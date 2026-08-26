@@ -25,5 +25,9 @@ class UsuarioCursosResponseDTO(BaseModel):
     usuario_id: int
     curso_id: int
     fecha_inscripcion: datetime
+    curso_nivel: str
+    idioma_id: int
+    idioma_nombre: str
+    idioma_codigo: str
 
     model_config = {"from_attributes": True}

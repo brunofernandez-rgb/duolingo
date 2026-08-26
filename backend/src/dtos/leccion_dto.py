@@ -29,5 +29,9 @@ class LeccionResponseDTO(BaseModel):
     orden: int
     titulo: str
     xp_recompensa: int
+    curso_nivel: str
+    idioma_id: int
+    idioma_nombre: str
+    idioma_codigo: str
 
     model_config = {"from_attributes": True}

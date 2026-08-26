@@ -23,5 +23,7 @@ class CursoResponseDTO(BaseModel):
     id: int
     idioma_id: int
     nivel: str
+    idioma_nombre: str
+    idioma_codigo: str
 
     model_config = {"from_attributes": True}

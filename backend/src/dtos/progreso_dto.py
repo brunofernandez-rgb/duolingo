@@ -29,5 +29,16 @@ class ProgresoResponseDTO(BaseModel):
     puntaje: int
     completada: bool
     fecha: datetime
+    leccion_titulo: str
+    curso_id: int
+    curso_nivel: str
 
     model_config = {"from_attributes": True}
+
+
+class ProgresoCursoDTO(BaseModel):
+    curso_id: int
+    total_lecciones: int
+    completadas: int
+    porcentaje: float
+    proxima_leccion_id: int | None = None

@@ -25,5 +25,11 @@ class AmigosResponseDTO(BaseModel):
     usuario_a: int
     usuario_b: int
     fecha: datetime
+    amigo_id: int
+    amigo_email: str
+    amigo_nombre: str
+    amigo_xp_total: int
+    amigo_racha_dias: int
+    amigo_fecha_ultima_actividad: datetime | None = None
 
     model_config = {"from_attributes": True}

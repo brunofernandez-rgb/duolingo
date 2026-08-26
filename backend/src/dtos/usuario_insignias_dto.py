@@ -25,5 +25,8 @@ class UsuarioInsigniasResponseDTO(BaseModel):
     usuario_id: int
     insignia_id: int
     fecha: datetime
+    insignia_nombre: str
+    insignia_descripcion: str | None = None
+    insignia_criterio: str
 
     model_config = {"from_attributes": True}
