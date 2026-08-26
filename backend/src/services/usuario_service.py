@@ -2,12 +2,12 @@ from sqlalchemy.orm import Session
 
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
 from src.mappers.usuarios_mapper import to_usuario_response
-from src.repositories.usuario_repository import UsuarioRepository
+from src.repositories.usuario_repository import UsuariosRepository
 
 
 class UsuarioService:
     def __init__(self, db: Session):
-        self.repo = UsuarioRepository(db)
+        self.repo = UsuariosRepository(db)
 
     def create(self, dto: CreateUsuarioDTO) -> UsuarioResponseDTO | None:
         if self.repo.get_by_email(dto.email):
