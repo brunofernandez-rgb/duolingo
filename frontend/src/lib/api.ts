@@ -103,8 +103,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     let message = "No se pudo completar la solicitud";
     try {
-      const body = (await response.json()) as { detail?: string };
-      message = body.detail ?? message;
+      const body = (await response.json()) as { detail?: string; message?: string };
+      message = body.detail ?? body.message ?? message;
     } catch {
       // Keep a useful generic message for non-JSON errors.
     }
@@ -118,6 +118,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   login: (email: string, password: string) =>
     request<ApiToken>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+  resetPassword: (email: string, password: string) =>
+    request<{ message: string }>("/auth/reset-password", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),

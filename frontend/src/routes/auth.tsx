@@ -8,11 +8,11 @@ import { useT } from "@/lib/useT";
 import { setRemoteSession } from "@/lib/store";
 import { api, usuarioIdDesdeToken } from "@/lib/api";
 
-type Modo = "registro" | "login";
+type Modo = "registro" | "login" | "recuperar";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { modo: Modo } => ({
-    modo: s.modo === "login" ? "login" : "registro",
+    modo: s.modo === "login" || s.modo === "recuperar" ? s.modo : "registro",
   }),
   head: () => ({
     meta: [
@@ -42,13 +42,18 @@ function AuthPage() {
   const [password, setPassword] = useState("");
 
   const esRegistro = modo === "registro";
+  const esRecuperacion = modo === "recuperar";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     try {
-      const result = esRegistro
-        ? await api.register(nombre, email, password)
-        : await api.login(email, password);
+      if (esRecuperacion) {
+        await api.resetPassword(email, password);
+        toast.success("Contraseña actualizada. Ya podés iniciar sesión.");
+        navigate({ to: "/auth", search: { modo: "login" } });
+        return;
+      }
+      const result = esRegistro ? await api.register(nombre, email, password) : await api.login(email, password);
       localStorage.setItem("pingu.token", result.access_token);
       const usuario = await api.usuario(usuarioIdDesdeToken(result.access_token));
       setRemoteSession(usuario, result.access_token);
@@ -72,7 +77,7 @@ function AuthPage() {
 
       <main className="mx-auto w-full max-w-md px-4 py-8">
         <h1 className="mb-6 text-center text-2xl font-extrabold">
-          {esRegistro ? t("auth.register") : t("auth.login")}
+          {esRegistro ? t("auth.register") : esRecuperacion ? "Cambiar contraseña" : t("auth.login")}
         </h1>
         <form onSubmit={submit} className="space-y-3">
           {esRegistro && (
@@ -103,7 +108,7 @@ function AuthPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <DuoButton type="submit" size="lg" block>
-            {esRegistro ? t("auth.register") : t("auth.login")}
+            {esRegistro ? t("auth.register") : esRecuperacion ? "Cambiar contraseña" : t("auth.login")}
           </DuoButton>
         </form>
 
@@ -114,6 +119,14 @@ function AuthPage() {
             </DuoButton>
           </Link>
         </div>
+
+        {modo === "login" && (
+          <div className="mt-2 text-center">
+            <Link to="/auth" search={{ modo: "recuperar" }}>
+              <DuoButton variant="ghost" size="sm">Olvidé mi contraseña</DuoButton>
+            </Link>
+          </div>
+        )}
 
         <p className="mt-8 text-center text-xs font-bold text-muted-foreground">
           demo: lucia@pingu.app · mateo@pingu.app · sofia@pingu.app
