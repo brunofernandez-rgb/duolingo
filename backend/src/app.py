@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.middlewares.error_middleware import app_error_handler
 from src.routers import (
@@ -19,6 +20,15 @@ from src.routers import (
 from src.utils.errors import AppError
 
 app = FastAPI(title="Initial Structure API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_exception_handler(AppError, app_error_handler)
 

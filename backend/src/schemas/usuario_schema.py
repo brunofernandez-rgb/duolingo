@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr, Field
 class CreateUsuarioSchema(BaseModel):
     email: EmailStr
     nombre: str = Field(max_length=100)
+    password: str = Field(min_length=8)
     xp_total: int = Field(default=0, ge=0)
     racha_dias: int = Field(default=0, ge=0)
     fecha_ultima_actividad: datetime | None = None

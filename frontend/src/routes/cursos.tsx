@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/duo/RequireAuth";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { useT } from "@/lib/useT";
 import { IDIOMAS } from "@/data/content";
-import { estaInscripto, inscribirse, leccionesDeCurso, progresoCurso } from "@/lib/store";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/cursos")({
   head: () => ({
@@ -27,30 +28,46 @@ export const Route = createFileRoute("/cursos")({
   component: () => <RequireAuth>{(ctx) => <Cursos {...ctx} />}</RequireAuth>,
 });
 
-function Cursos({ user, db }: { user: { id: string }; db: ReturnType<typeof import("@/lib/store").getState> }) {
+function Cursos({ user }: { user: { id: string } }) {
   const { t, lang } = useT();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const userId = Number(user.id);
+  const cursosQuery = useQuery({ queryKey: ["cursos"], queryFn: api.cursos });
+  const inscripcionesQuery = useQuery({
+    queryKey: ["inscripciones", userId],
+    queryFn: () => api.inscripciones(userId),
+    enabled: Number.isInteger(userId),
+  });
+  const inscribirMutation = useMutation({
+    mutationFn: (cursoId: number) => api.inscribir(userId, cursoId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inscripciones", userId] }),
+    onError: (error) => toast.error(error instanceof Error ? error.message : t("course.enrolled")),
+  });
+
+  if (cursosQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando cursos...</p>;
+  if (cursosQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
+  const cursos = cursosQuery.data ?? [];
+  const inscripciones = new Set((inscripcionesQuery.data ?? []).map((item) => item.curso_id));
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-extrabold">{t("course.choose")}</h1>
 
       {IDIOMAS.map((idioma) => {
-        const cursos = db.cursos.filter((c) => c.idioma_id === idioma.id);
-        if (!cursos.length) return null;
+        const cursosIdioma = cursos.filter((curso) => curso.idioma_codigo === idioma.codigo);
+        if (!cursosIdioma.length) return null;
         return (
           <section key={idioma.id} className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-extrabold">
               <span className="text-2xl">{idioma.bandera}</span> {idioma.nombre[lang]}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
-              {cursos
+              {cursosIdioma
                 .slice()
                 .sort((a, b) => a.nivel.localeCompare(b.nivel))
                 .map((curso) => {
-                  const inscripto = estaInscripto(user.id, curso.id);
-                  const prog = progresoCurso(user.id, curso.id, db);
-                  const total = leccionesDeCurso(curso.id).length;
+                  const inscripto = inscripciones.has(curso.id);
                   return (
                     <article
                       key={curso.id}
@@ -62,25 +79,11 @@ function Cursos({ user, db }: { user: { id: string }; db: ReturnType<typeof impo
                             {t("course.level")} {curso.nivel}
                           </p>
                           <p className="text-sm font-bold text-muted-foreground">
-                            {total} {t("course.lessons")}
+                            {t("course.lessons")}
                           </p>
                         </div>
                         <span className="text-3xl">{idioma.bandera}</span>
                       </div>
-
-                      {inscripto && prog && (
-                        <div className="mt-4">
-                          <div className="h-3 w-full overflow-hidden rounded-full bg-secondary">
-                            <div
-                              className="h-full rounded-full bg-primary transition-all"
-                              style={{ width: `${prog.porcentaje}%` }}
-                            />
-                          </div>
-                          <p className="mt-1 text-xs font-extrabold text-muted-foreground">
-                            {prog.completadas}/{prog.total} {t("course.completed")}
-                          </p>
-                        </div>
-                      )}
 
                       <div className="mt-4">
                         {inscripto ? (
@@ -97,14 +100,9 @@ function Cursos({ user, db }: { user: { id: string }; db: ReturnType<typeof impo
                           <DuoButton
                             block
                             onClick={() => {
-                              const r = inscribirse(user.id, curso.id);
-                              if (!r.ok) toast.error(t("course.enrolled"));
-                              else
-                                navigate({
-                                  to: "/curso/$cursoId",
-                                  params: { cursoId: curso.id },
-                                });
+                              inscribirMutation.mutate(curso.id);
                             }}
+                            disabled={inscribirMutation.isPending}
                           >
                             {t("course.enroll")}
                           </DuoButton>

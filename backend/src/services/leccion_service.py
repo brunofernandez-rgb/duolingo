@@ -19,6 +19,10 @@ class LeccionService:
         res = self.repo.get_by_id_with_curso_idioma(leccion.id)
         return to_leccion_response(res[0], res[1], res[2])
 
+    def get_by_id(self, leccion_id: int) -> LeccionResponseDTO | None:
+        res = self.repo.get_by_id_with_curso_idioma(leccion_id)
+        return to_leccion_response(res[0], res[1], res[2]) if res else None
+
     def get_lecciones_por_curso(self, curso_id: int) -> list[LeccionResponseDTO]:
         registros = self.repo.get_by_curso_id_with_join(curso_id)
         return [to_leccion_response(l, c, i) for l, c, i in registros]

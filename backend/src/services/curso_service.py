@@ -20,6 +20,14 @@ class CursoService:
         res = self.repo.get_by_id_with_idioma(curso_id)
         return to_curso_response(res[0], res[1]) if res else None
 
+    def list_all(self) -> list[CursoResponseDTO]:
+        result = []
+        for curso in self.repo.list_all():
+            joined = self.repo.get_by_id_with_idioma(curso.id)
+            if joined:
+                result.append(to_curso_response(joined[0], joined[1]))
+        return result
+
     def delete(self, curso_id: int) -> bool:
         res = self.repo.get_by_id(curso_id)
         if not res:

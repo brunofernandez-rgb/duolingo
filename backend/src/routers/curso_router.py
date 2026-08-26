@@ -9,6 +9,11 @@ from src.services.curso_service import CursoService
 router = APIRouter(prefix="/cursos", tags=["cursos"])
 
 
+@router.get("/", response_model=list[CursoResponseDTO])
+def list_cursos(db: Session = Depends(get_db)):
+    return CursoService(db).list_all()
+
+
 @router.post("/", response_model=CursoResponseDTO, status_code=status.HTTP_201_CREATED)
 def create_curso(payload: CreateCursoSchema, db: Session = Depends(get_db)):
     result = CursoService(db).create(CreateCursoDTO(**payload.model_dump()))

@@ -5,7 +5,8 @@ import { Penguin } from "@/components/duo/Penguin";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { LanguagePicker } from "@/components/duo/AppShell";
 import { useT } from "@/lib/useT";
-import { iniciarSesion, registrar } from "@/lib/store";
+import { setRemoteSession } from "@/lib/store";
+import { api, usuarioIdDesdeToken } from "@/lib/api";
 
 type Modo = "registro" | "login";
 
@@ -38,17 +39,23 @@ function AuthPage() {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const esRegistro = modo === "registro";
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const res = esRegistro ? registrar(nombre, email) : iniciarSesion(email);
-    if (!res.ok) {
-      toast.error(t(res.error!));
-      return;
+    try {
+      const result = esRegistro
+        ? await api.register(nombre, email, password)
+        : await api.login(email, password);
+      localStorage.setItem("pingu.token", result.access_token);
+      const usuario = await api.usuario(usuarioIdDesdeToken(result.access_token));
+      setRemoteSession(usuario, result.access_token);
+      navigate({ to: "/cursos" });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("auth.notFound"));
     }
-    navigate({ to: "/cursos" });
   }
 
   const inputClass =
@@ -84,6 +91,16 @@ function AuthPage() {
             value={email}
             required
             onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            className={inputClass}
+            type="password"
+            placeholder="Contraseña"
+            value={password}
+            minLength={8}
+            required
+            autoComplete={esRegistro ? "new-password" : "current-password"}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <DuoButton type="submit" size="lg" block>
             {esRegistro ? t("auth.register") : t("auth.login")}

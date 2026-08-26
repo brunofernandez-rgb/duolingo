@@ -10,12 +10,35 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AmigosRouteImport } from './routes/amigos'
+import { Route as AprenderRouteImport } from './routes/aprender'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CursosRouteImport } from './routes/cursos'
+import { Route as InsigniasRouteImport } from './routes/insignias'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as CursoCursoIdRouteImport } from './routes/curso/$cursoId'
+import { Route as LeccionLeccionIdRouteImport } from './routes/leccion/$leccionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmigosRoute = AmigosRouteImport.update({
+  id: '/amigos',
+  path: '/amigos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderRoute = AprenderRouteImport.update({
+  id: '/aprender',
+  path: '/aprender',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -28,35 +51,126 @@ const CursosRoute = CursosRouteImport.update({
   path: '/cursos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InsigniasRoute = InsigniasRouteImport.update({
+  id: '/insignias',
+  path: '/insignias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RankingRoute = RankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CursoCursoIdRoute = CursoCursoIdRouteImport.update({
+  id: '/curso/$cursoId',
+  path: '/curso/$cursoId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeccionLeccionIdRoute = LeccionLeccionIdRouteImport.update({
+  id: '/leccion/$leccionId',
+  path: '/leccion/$leccionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/amigos': typeof AmigosRoute
+  '/aprender': typeof AprenderRoute
   '/auth': typeof AuthRoute
   '/cursos': typeof CursosRoute
+  '/insignias': typeof InsigniasRoute
+  '/perfil': typeof PerfilRoute
+  '/ranking': typeof RankingRoute
+  '/curso/$cursoId': typeof CursoCursoIdRoute
+  '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/amigos': typeof AmigosRoute
+  '/aprender': typeof AprenderRoute
   '/auth': typeof AuthRoute
   '/cursos': typeof CursosRoute
+  '/insignias': typeof InsigniasRoute
+  '/perfil': typeof PerfilRoute
+  '/ranking': typeof RankingRoute
+  '/curso/$cursoId': typeof CursoCursoIdRoute
+  '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/amigos': typeof AmigosRoute
+  '/aprender': typeof AprenderRoute
   '/auth': typeof AuthRoute
   '/cursos': typeof CursosRoute
+  '/insignias': typeof InsigniasRoute
+  '/perfil': typeof PerfilRoute
+  '/ranking': typeof RankingRoute
+  '/curso/$cursoId': typeof CursoCursoIdRoute
+  '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/cursos'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/amigos'
+    | '/aprender'
+    | '/auth'
+    | '/cursos'
+    | '/insignias'
+    | '/perfil'
+    | '/ranking'
+    | '/curso/$cursoId'
+    | '/leccion/$leccionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/cursos'
-  id: '__root__' | '/' | '/auth' | '/cursos'
+  to:
+    | '/'
+    | '/admin'
+    | '/amigos'
+    | '/aprender'
+    | '/auth'
+    | '/cursos'
+    | '/insignias'
+    | '/perfil'
+    | '/ranking'
+    | '/curso/$cursoId'
+    | '/leccion/$leccionId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/amigos'
+    | '/aprender'
+    | '/auth'
+    | '/cursos'
+    | '/insignias'
+    | '/perfil'
+    | '/ranking'
+    | '/curso/$cursoId'
+    | '/leccion/$leccionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  AmigosRoute: typeof AmigosRoute
+  AprenderRoute: typeof AprenderRoute
   AuthRoute: typeof AuthRoute
   CursosRoute: typeof CursosRoute
+  InsigniasRoute: typeof InsigniasRoute
+  PerfilRoute: typeof PerfilRoute
+  RankingRoute: typeof RankingRoute
+  CursoCursoIdRoute: typeof CursoCursoIdRoute
+  LeccionLeccionIdRoute: typeof LeccionLeccionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -66,6 +180,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/amigos': {
+      id: '/amigos'
+      path: '/amigos'
+      fullPath: '/amigos'
+      preLoaderRoute: typeof AmigosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender': {
+      id: '/aprender'
+      path: '/aprender'
+      fullPath: '/aprender'
+      preLoaderRoute: typeof AprenderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -82,13 +217,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CursosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/insignias': {
+      id: '/insignias'
+      path: '/insignias'
+      fullPath: '/insignias'
+      preLoaderRoute: typeof InsigniasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ranking': {
+      id: '/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof RankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curso/$cursoId': {
+      id: '/curso/$cursoId'
+      path: '/curso/$cursoId'
+      fullPath: '/curso/$cursoId'
+      preLoaderRoute: typeof CursoCursoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leccion/$leccionId': {
+      id: '/leccion/$leccionId'
+      path: '/leccion/$leccionId'
+      fullPath: '/leccion/$leccionId'
+      preLoaderRoute: typeof LeccionLeccionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  AmigosRoute: AmigosRoute,
+  AprenderRoute: AprenderRoute,
   AuthRoute: AuthRoute,
   CursosRoute: CursosRoute,
+  InsigniasRoute: InsigniasRoute,
+  PerfilRoute: PerfilRoute,
+  RankingRoute: RankingRoute,
+  CursoCursoIdRoute: CursoCursoIdRoute,
+  LeccionLeccionIdRoute: LeccionLeccionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

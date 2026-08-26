@@ -9,6 +9,14 @@ from src.services.leccion_service import LeccionService
 router = APIRouter(prefix="/lecciones", tags=["lecciones"])
 
 
+@router.get("/{leccion_id}", response_model=LeccionResponseDTO)
+def get_leccion(leccion_id: int, db: Session = Depends(get_db)):
+    result = LeccionService(db).get_by_id(leccion_id)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lección no encontrada")
+    return result
+
+
 @router.post("/", response_model=LeccionResponseDTO, status_code=status.HTTP_201_CREATED)
 def create_leccion(payload: CreateLeccionSchema, db: Session = Depends(get_db)):
     result = LeccionService(db).create(CreateLeccionDTO(**payload.model_dump()))

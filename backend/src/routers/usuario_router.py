@@ -12,7 +12,7 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 @router.post("/", response_model=UsuarioResponseDTO, status_code=status.HTTP_201_CREATED)
 def create_usuario(payload: CreateUsuarioSchema, db: Session = Depends(get_db)):
     dto = CreateUsuarioDTO(email=str(payload.email), nombre=payload.nombre)
-    result = UsuarioService(db).create(dto)
+    result = UsuarioService(db).create(dto, payload.password)
     if result is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El email ya está registrado")
     return result

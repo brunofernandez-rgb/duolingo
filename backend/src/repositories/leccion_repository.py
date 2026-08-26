@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
 from src.db.models.leccion_model import Leccion
+from src.db.models.curso_model import Curso
+from src.db.models.idioma_model import Idioma
 
 
 class LeccionRepository:
@@ -9,14 +11,12 @@ class LeccionRepository:
 
     def create(
         self,
-        id: int,
         curso_id: int,
         orden: int,
         titulo: str,
         xp_recompensa: int
     ) -> Leccion:
         leccion = Leccion(
-            id=id,
             curso_id=curso_id,
             orden=orden,
             titulo=titulo,
@@ -29,6 +29,28 @@ class LeccionRepository:
 
     def get_by_id(self, leccion_id: int) -> Leccion | None:
         return self.db.query(Leccion).filter(Leccion.id == leccion_id).first()
+
+    def get_by_curso_y_orden(self, curso_id: int, orden: int) -> Leccion | None:
+        return self.db.query(Leccion).filter(Leccion.curso_id == curso_id, Leccion.orden == orden).first()
+
+    def get_by_id_with_curso_idioma(self, leccion_id: int):
+        return (
+            self.db.query(Leccion, Curso, Idioma)
+            .join(Curso, Leccion.curso_id == Curso.id)
+            .join(Idioma, Curso.idioma_id == Idioma.id)
+            .filter(Leccion.id == leccion_id)
+            .first()
+        )
+
+    def get_by_curso_id_with_join(self, curso_id: int):
+        return (
+            self.db.query(Leccion, Curso, Idioma)
+            .join(Curso, Leccion.curso_id == Curso.id)
+            .join(Idioma, Curso.idioma_id == Idioma.id)
+            .filter(Leccion.curso_id == curso_id)
+            .order_by(Leccion.orden)
+            .all()
+        )
 
     def update(self, leccion: Leccion) -> Leccion:
         self.db.add(leccion)

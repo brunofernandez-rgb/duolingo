@@ -255,6 +255,15 @@ export function useDB(): DBState {
 
 export const getState = () => state;
 
+export function setRemoteSession(usuario: Usuario, token: string) {
+  set((s) => {
+    s.usuarios = s.usuarios.filter((u) => u.id !== String(usuario.id));
+    s.usuarios.push({ ...usuario, id: String(usuario.id) });
+    s.sesion = String(usuario.id);
+  });
+  localStorage.setItem("pingu.token", token);
+}
+
 /* ------------------------------- HU1 registro ------------------------------ */
 
 export function registrar(nombre: string, email: string): { ok: boolean; error?: string } {
@@ -276,7 +285,7 @@ export function registrar(nombre: string, email: string): { ok: boolean; error?:
   return { ok: true };
 }
 
-export function iniciarSesion(email: string): { ok: boolean; error?: string } {
+export function iniciarSesion(email: string, _password: string): { ok: boolean; error?: string } {
   const mail = email.trim().toLowerCase();
   const u = state.usuarios.find((x) => x.email.toLowerCase() === mail);
   if (!u) return { ok: false, error: "auth.notFound" };
@@ -290,6 +299,7 @@ export function cerrarSesion() {
   set((s) => {
     s.sesion = null;
   });
+  localStorage.removeItem("pingu.token");
 }
 
 export function setUiLang(lang: UiLang) {

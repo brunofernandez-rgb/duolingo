@@ -2,6 +2,7 @@ CREATE TABLE usuario (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     xp_total INT NOT NULL DEFAULT 0,
     racha_dias INT NOT NULL DEFAULT 0,
     fecha_ultima_actividad TIMESTAMP
