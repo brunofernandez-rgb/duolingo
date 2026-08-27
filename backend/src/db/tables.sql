@@ -76,6 +76,17 @@ CREATE TABLE amigos (
     CONSTRAINT chk_amigos_diferentes CHECK (usuario_a <> usuario_b)
 );
 
+CREATE TABLE solicitud_amistad (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    solicitante_id INT NOT NULL,
+    destinatario_id INT NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente',
+    fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_solicitud_solicitante FOREIGN KEY (solicitante_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    CONSTRAINT fk_solicitud_destinatario FOREIGN KEY (destinatario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    CONSTRAINT chk_solicitud_usuarios_diferentes CHECK (solicitante_id <> destinatario_id)
+);
+
 INSERT INTO idioma (nombre, codigo) VALUES
     ('Español', 'es'),
     ('Inglés', 'en'),
@@ -100,4 +111,19 @@ CROSS JOIN (VALUES ('A2'), ('B1'), ('B2'), ('C1')) AS niveles(nivel)
 WHERE NOT EXISTS (
     SELECT 1 FROM curso
     WHERE curso.idioma_id = idioma.id AND curso.nivel = niveles.nivel
+);
+
+INSERT INTO leccion (curso_id, orden, titulo, xp_recompensa)
+SELECT curso.id, lecciones.orden, lecciones.titulo, lecciones.xp_recompensa
+FROM curso
+CROSS JOIN (VALUES
+    (1, 'Saludos y presentaciones', 10),
+    (2, 'Personas y familia', 10),
+    (3, 'Comida y bebida', 15),
+    (4, 'Rutinas diarias', 15),
+    (5, 'Conversaciones básicas', 20)
+) AS lecciones(orden, titulo, xp_recompensa)
+WHERE NOT EXISTS (
+    SELECT 1 FROM leccion
+    WHERE leccion.curso_id = curso.id AND leccion.orden = lecciones.orden
 );

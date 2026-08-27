@@ -57,6 +57,11 @@ function Cursos({ user }: { user: { id: string } }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inscripciones", userId] }),
     onError: (error) => toast.error(error instanceof Error ? error.message : t("course.enrolled")),
   });
+  const dejarCursoMutation = useMutation({
+    mutationFn: (cursoId: number) => api.dejarCurso(userId, cursoId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inscripciones", userId] }),
+    onError: (error) => toast.error(error instanceof Error ? error.message : t("course.leave")),
+  });
 
   if (cursosQuery.isLoading || idiomasQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando cursos...</p>;
   if (cursosQuery.isError || idiomasQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
@@ -104,15 +109,29 @@ function Cursos({ user }: { user: { id: string } }) {
 
                       <div className="mt-4">
                         {inscripto ? (
-                          <DuoButton
-                            variant="outline"
-                            block
-                            onClick={() =>
-                              navigate({ to: "/curso/$cursoId", params: { cursoId: curso.id } })
-                            }
-                          >
-                            {t("course.continue")}
-                          </DuoButton>
+                          <div className="space-y-3">
+                            <DuoButton
+                              variant="outline"
+                              block
+                              onClick={() =>
+                                navigate({ to: "/curso/$cursoId", params: { cursoId: curso.id } })
+                              }
+                            >
+                              {t("course.continue")}
+                            </DuoButton>
+                            <DuoButton
+                              variant="danger"
+                              block
+                              disabled={dejarCursoMutation.isPending}
+                              onClick={() => {
+                                if (window.confirm(`${t("course.leave")} · ${idioma.nombre} ${curso.nivel}?`)) {
+                                  dejarCursoMutation.mutate(curso.id);
+                                }
+                              }}
+                            >
+                              {t("course.leave")}
+                            </DuoButton>
+                          </div>
                         ) : (
                           <DuoButton
                             block

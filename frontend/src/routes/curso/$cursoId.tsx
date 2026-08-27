@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Lock } from "lucide-react";
 import { RequireAuth } from "@/components/duo/RequireAuth";
-import { api } from "@/lib/api";
+import { ApiError, api } from "@/lib/api";
 import { useT } from "@/lib/useT";
 
 export const Route = createFileRoute("/curso/$cursoId")({
@@ -17,12 +17,22 @@ function Curso({ user }: { user: { id: string } }) {
   const lecciones = useQuery({ queryKey: ["lecciones", cursoIdNumber], queryFn: () => api.lecciones(cursoIdNumber) });
   const progreso = useQuery({
     queryKey: ["progreso", user.id, cursoIdNumber],
-    queryFn: () => api.progresoCurso(Number(user.id), cursoIdNumber),
+    queryFn: async () => {
+      try {
+        return await api.progresoCurso(Number(user.id), cursoIdNumber);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) {
+          return { curso_id: cursoIdNumber, total_lecciones: 0, completadas: 0, porcentaje: 0, proxima_leccion_id: null };
+        }
+        throw error;
+      }
+    },
   });
 
   if (curso.isLoading || lecciones.isLoading || progreso.isLoading) return <p>Cargando curso...</p>;
   if (curso.isError || lecciones.isError || progreso.isError) return <p>No se pudo cargar el curso.</p>;
   const completed = progreso.data?.completadas ?? 0;
+  const nextLessonId = progreso.data?.proxima_leccion_id;
 
   return (
     <div className="space-y-6">
@@ -33,7 +43,7 @@ function Curso({ user }: { user: { id: string } }) {
       </header>
       <ol className="space-y-3">
         {(lecciones.data ?? []).map((lesson, index) => {
-          const unlocked = index <= completed;
+          const unlocked = lesson.id === nextLessonId || index < completed;
           return (
             <li key={lesson.id} className="flex items-center justify-between rounded-2xl border-2 border-border bg-card p-4">
               <div>

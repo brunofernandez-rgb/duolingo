@@ -7,12 +7,14 @@ $backendVenvPython = Join-Path $backendPath "venv\Scripts\python.exe"
 $frontendModules = Join-Path $frontendPath "node_modules"
 
 function Find-FrontendCommand {
-    if (Get-Command bun -ErrorAction SilentlyContinue) {
-        return "bun run dev -- --host 0.0.0.0"
+    $bun = Get-Command bun -ErrorAction SilentlyContinue
+    if ($bun) {
+        return $bun.Source
     }
 
-    if (Get-Command npm -ErrorAction SilentlyContinue) {
-        return "npm run dev -- --host 0.0.0.0"
+    $npm = Get-Command npm.cmd -ErrorAction SilentlyContinue
+    if ($npm) {
+        return $npm.Source
     }
 
     $npmCandidates = @(

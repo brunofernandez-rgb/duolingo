@@ -9,6 +9,11 @@ from src.services.leccion_service import LeccionService
 router = APIRouter(prefix="/lecciones", tags=["lecciones"])
 
 
+@router.get("/curso/{curso_id}", response_model=list[LeccionResponseDTO])
+def get_lecciones_por_curso(curso_id: int, db: Session = Depends(get_db)):
+    return LeccionService(db).get_lecciones_por_curso(curso_id)
+
+
 @router.get("/{leccion_id}", response_model=LeccionResponseDTO)
 def get_leccion(leccion_id: int, db: Session = Depends(get_db)):
     result = LeccionService(db).get_by_id(leccion_id)
@@ -23,11 +28,6 @@ def create_leccion(payload: CreateLeccionSchema, db: Session = Depends(get_db)):
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se pudo crear la lección")
     return result
-
-
-@router.get("/curso/{curso_id}", response_model=list[LeccionResponseDTO])
-def get_lecciones_por_curso(curso_id: int, db: Session = Depends(get_db)):
-    return LeccionService(db).get_lecciones_por_curso(curso_id)
 
 
 @router.delete("/{leccion_id}", status_code=status.HTTP_204_NO_CONTENT)

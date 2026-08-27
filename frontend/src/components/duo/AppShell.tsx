@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   BookOpen,
   Trophy,
@@ -14,6 +15,7 @@ import {
 import type { ReactNode } from "react";
 import { Penguin } from "./Penguin";
 import { useT } from "@/lib/useT";
+import { api } from "@/lib/api";
 import { UI_LANGS } from "@/lib/i18n";
 import { cerrarSesion, setUiLang, useDB, usuarioActual } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -64,6 +66,12 @@ export function LanguagePicker() {
 export function AppShell({ children }: { children: ReactNode }) {
   const db = useDB();
   const user = usuarioActual(db);
+  const userQuery = useQuery({
+    queryKey: ["usuario", user?.id],
+    queryFn: () => api.usuario(Number(user?.id)),
+    enabled: Boolean(user),
+  });
+  const currentUser = userQuery.data ?? user;
   const { t } = useT();
   const navigate = useNavigate();
 
@@ -78,18 +86,18 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </Link>
           <div className="flex-1" />
-          {user && (
+          {currentUser && (
             <div className="flex items-center gap-3 text-sm font-extrabold">
               <span className="flex items-center gap-1 text-streak" title={t("streak.days")}>
-                <Flame className="h-5 w-5" /> {user.racha_dias}
+                <Flame className="h-5 w-5" /> {currentUser.racha_dias}
               </span>
               <span className="flex items-center gap-1 text-gold" title={t("xp.total")}>
-                <Zap className="h-5 w-5" /> {user.xp_total}
+                <Zap className="h-5 w-5" /> {currentUser.xp_total}
               </span>
             </div>
           )}
           <LanguagePicker />
-          {user && (
+          {currentUser && (
             <button
               onClick={() => {
                 cerrarSesion();

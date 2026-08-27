@@ -71,6 +71,16 @@ export interface ApiAmigo {
   fecha: string;
 }
 
+export interface ApiSolicitudAmistad {
+  id: number;
+  solicitante_id: number;
+  destinatario_id: number;
+  estado: string;
+  fecha: string;
+  solicitante_nombre: string;
+  solicitante_email: string;
+}
+
 export interface ApiInsignia {
   usuario_id: number;
   insignia_id: number;
@@ -146,9 +156,19 @@ export const api = {
     }),
   ranking: (periodo: "global" | "semanal" | "mensual") =>
     request<ApiRankingUser[]>(`/usuarios/ranking?periodo=${periodo}`),
-  amigos: (usuarioId: number) => request<ApiAmigo[]>(`/amigos/usuarios/${usuarioId}`),
-  agregarAmigo: (usuarioId: number, amigoId: number) =>
-    request("/amigos/", { method: "POST", body: JSON.stringify({ usuario_a: usuarioId, usuario_b: amigoId }) }),
+  amigos: (usuarioId: number) => request<ApiAmigo[]>(`/usuarios/${usuarioId}/amigos`),
+  solicitarAmigo: (usuarioId: number, email: string) =>
+    request<ApiSolicitudAmistad>("/solicitudes-amistad/", {
+      method: "POST",
+      body: JSON.stringify({ solicitante_id: usuarioId, email }),
+    }),
+  solicitudesAmistad: (usuarioId: number) =>
+    request<ApiSolicitudAmistad[]>(`/solicitudes-amistad/recibidas/${usuarioId}`),
+  responderSolicitud: (solicitudId: number, usuarioId: number, aceptar: boolean) =>
+    request<ApiSolicitudAmistad>(`/solicitudes-amistad/${solicitudId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ usuario_id: usuarioId, aceptar }),
+    }),
   eliminarAmigo: (usuarioId: number, amigoId: number) =>
     request(`/amigos/${usuarioId}/${amigoId}`, { method: "DELETE" }),
   insignias: (usuarioId: number) => request<ApiInsignia[]>(`/usuario-insignias/usuarios/${usuarioId}`),
@@ -159,6 +179,8 @@ export const api = {
     }),
   inscripciones: (usuarioId: number) =>
     request<ApiInscripcion[]>(`/usuario-cursos/usuarios/${usuarioId}`),
+  dejarCurso: (usuarioId: number, cursoId: number) =>
+    request<void>(`/usuario-cursos/usuarios/${usuarioId}/cursos/${cursoId}`, { method: "DELETE" }),
 };
 
 export function usuarioIdDesdeToken(token: string): number {

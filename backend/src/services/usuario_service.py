@@ -20,7 +20,12 @@ class UsuarioService:
         return to_usuario_response(res) if res else None
 
     def get_ranking_global(self, periodo: str = "global") -> list[UsuarioResponseDTO]:
-        return [to_usuario_response(u) for u in self.repo.get_ranking(periodo, limit=50)]
+        if periodo == "semanal":
+            return [
+                to_usuario_response(usuario).model_copy(update={"xp_total": xp})
+                for usuario, xp in self.repo.get_ranking_semanal()
+            ]
+        return [to_usuario_response(u) for u in self.repo.get_ranking(periodo)]
 
     def delete(self, usuario_id: int) -> bool:
         res = self.repo.get_by_id(usuario_id)
