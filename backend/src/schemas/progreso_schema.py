@@ -6,7 +6,7 @@ class CreateProgresoSchema(BaseModel):
 
     usuario_id: int = Field(gt=0)
     leccion_id: int = Field(gt=0)
-    puntaje: int = Field(default=0, ge=0)
+    puntaje: int = Field(default=0, ge=0, le=100)
     completada: bool = Field(default=False)
 
 

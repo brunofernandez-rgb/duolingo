@@ -25,11 +25,6 @@ class ProgresoService:
         if not leccion or not usuario:
             return None
 
-        if leccion.orden > 1:
-            prev = self.leccion_repo.get_by_curso_y_orden(leccion.curso_id, leccion.orden - 1)
-            if not prev or not self.repo.get_completada(dto.usuario_id, prev.id):
-                return None
-
         es_completada = dto.puntaje >= 60
         progreso_existente = self.repo.get_by_usuario_y_leccion(dto.usuario_id, leccion.id)
         ya_completada = progreso_existente is not None and progreso_existente.completada

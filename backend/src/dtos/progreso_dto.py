@@ -1,11 +1,11 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CreateProgresoDTO(BaseModel):  # POST
     usuario_id: int
     leccion_id: int
-    puntaje: int = 0
+    puntaje: int = Field(default=0, ge=0, le=100)
     completada: bool = False
 
 
