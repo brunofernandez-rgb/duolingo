@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from sqlalchemy import distinct, func
 from sqlalchemy.orm import Session
 
 from src.db.models.curso_model import Curso
@@ -78,6 +79,17 @@ class ProgresoRepository:
             )
             .first()
             is not None
+        )
+
+    def count_lecciones_completadas(self, usuario_id: int) -> int:
+        return int(
+            self.db.query(func.count(distinct(Progreso.leccion_id)))
+            .filter(
+                Progreso.usuario_id == usuario_id,
+                Progreso.completada.is_(True),
+            )
+            .scalar()
+            or 0
         )
 
     def update(self, progreso: Progreso) -> Progreso:

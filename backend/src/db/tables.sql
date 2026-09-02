@@ -127,3 +127,14 @@ WHERE NOT EXISTS (
     SELECT 1 FROM leccion
     WHERE leccion.curso_id = curso.id AND leccion.orden = lecciones.orden
 );
+
+INSERT INTO insignia (nombre, descripcion, criterio)
+SELECT insignias.nombre, insignias.descripcion, insignias.criterio
+FROM (VALUES
+    ('Primeros pasos', 'Alcanzá 100 XP', 'xp >= 100'),
+    ('Semana perfecta', 'Mantené una racha de 7 días', 'racha >= 7'),
+    ('Estudiante dedicado', 'Completá 20 lecciones', 'lecciones_completadas >= 20')
+) AS insignias(nombre, descripcion, criterio)
+WHERE NOT EXISTS (
+    SELECT 1 FROM insignia WHERE insignia.criterio = insignias.criterio
+);

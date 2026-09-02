@@ -10,7 +10,13 @@ class InsigniaService:
         self.repo = InsigniaRepository(db)
 
     def create(self, dto: CreateInsigniaDTO) -> InsigniaResponseDTO | None:
-        return to_insignia_response(self.repo.create(dto.nombre, dto.descripcion, dto.criterio))
+        return to_insignia_response(
+            self.repo.create(
+                nombre=dto.nombre,
+                descripcion=dto.descripcion,
+                criterio=dto.criterio,
+            )
+        )
 
     def get_by_id(self, insignia_id: int) -> InsigniaResponseDTO | None:
         res = self.repo.get_by_id(insignia_id)

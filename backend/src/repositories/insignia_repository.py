@@ -16,6 +16,9 @@ class InsigniaRepository:
     def get_by_id(self, insignia_id: int) -> Insignia | None:
         return self.db.query(Insignia).filter(Insignia.id == insignia_id).first()
 
+    def get_all(self) -> list[Insignia]:
+        return self.db.query(Insignia).order_by(Insignia.id).all()
+
     def update(self, insignia: Insignia) -> Insignia:
         self.db.add(insignia)
         self.db.commit()
