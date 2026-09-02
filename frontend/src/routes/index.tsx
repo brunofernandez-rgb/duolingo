@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Flame, Mail, User, Zap } from "lucide-react";
+import { ArrowRight, Award, BookOpen, Trophy, Users } from "lucide-react";
 import { Penguin } from "@/components/duo/Penguin";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { AppShell, LanguagePicker } from "@/components/duo/AppShell";
 import { useT } from "@/lib/useT";
 import { IDIOMAS } from "@/data/content";
-import { api } from "@/lib/api";
 import { useDB, usuarioActual } from "@/lib/store";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -92,33 +92,145 @@ function Landing() {
 
 function Dashboard({ userId }: { userId: number }) {
   const { t } = useT();
-  const query = useQuery({ queryKey: ["usuario", userId], queryFn: () => api.usuario(userId) });
+  const usuario = useQuery({
+    queryKey: ["usuario", userId],
+    queryFn: () => api.usuario(userId),
+  });
+  const inscripciones = useQuery({
+    queryKey: ["inscripciones", userId],
+    queryFn: () => api.inscripciones(userId),
+  });
+  const insignias = useQuery({
+    queryKey: ["insignias", userId],
+    queryFn: () => api.insignias(userId),
+  });
+  const amigos = useQuery({
+    queryKey: ["amigos", userId],
+    queryFn: () => api.amigos(userId),
+  });
+  const ranking = useQuery({
+    queryKey: ["ranking", "semanal"],
+    queryFn: () => api.ranking("semanal"),
+  });
 
-  if (query.isLoading) return <p>Cargando tu perfil...</p>;
-  if (query.isError || !query.data) return <p>No se pudo cargar tu perfil.</p>;
+  if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading) return <p>Cargando tu inicio...</p>;
+  if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError) return <p>No se pudo cargar tu inicio.</p>;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-sm font-extrabold uppercase tracking-wide text-primary">Pingu</p>
-        <h1 className="mt-2 text-3xl font-extrabold">Tu panel</h1>
-      </div>
-      <section className="rounded-3xl border-2 border-border bg-card p-6">
-        <div className="flex flex-wrap items-center justify-between gap-6">
-          <div>
-            <p className="flex items-center gap-2 text-2xl font-extrabold"><User className="h-6 w-6 text-primary" /> {query.data.nombre}</p>
-            <p className="mt-2 flex items-center gap-2 font-bold text-muted-foreground"><Mail className="h-4 w-4" /> {query.data.email}</p>
-          </div>
-          <div className="flex flex-wrap gap-5 font-extrabold">
-            <span className="flex items-center gap-2 text-gold"><Zap className="h-6 w-6" /> {query.data.xp_total} {t("xp.total")}</span>
-            <span className="flex items-center gap-2 text-streak"><Flame className="h-6 w-6" /> {query.data.racha_dias} {t("streak.days")}</span>
-          </div>
+    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_18rem] md:items-start">
+      <div className="space-y-8">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-primary">Pingu</p>
+          <h1 className="mt-2 text-3xl font-extrabold">Inicio</h1>
         </div>
-      </section>
-      <div className="flex flex-wrap gap-3">
-        <Link to="/cursos"><DuoButton>{t("nav.courses")}</DuoButton></Link>
-        <Link to="/aprender"><DuoButton variant="outline">{t("nav.learn")}</DuoButton></Link>
+        <section className="space-y-4">
+        <h2 className="text-2xl font-extrabold">Continuar aprendiendo</h2>
+        <p className="font-bold text-muted-foreground">Hola, {usuario.data.nombre}. Retomá tus cursos y seguí con la próxima lección.</p>
+        {inscripciones.data?.length ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {inscripciones.data.map((inscripcion) => (
+              <ContinueCourse key={inscripcion.curso_id} userId={userId} inscripcion={inscripcion} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border-2 border-dashed border-border p-6 text-center">
+            <p className="font-bold text-muted-foreground">Todavía no estás inscripto en ningún curso.</p>
+            <Link to="/aprender" className="mt-4 inline-flex">
+              <DuoButton>{t("nav.learn")}</DuoButton>
+            </Link>
+          </div>
+        )}
+        </section>
+      </div>
+      <div className="space-y-5">
+        <aside className="rounded-2xl border-2 border-border bg-card p-3">
+          <h2 className="flex items-center gap-2 font-extrabold"><Users className="h-5 w-5 text-primary" /> Amigos</h2>
+          {amigos.data?.length ? (
+            <ul className="mt-3 space-y-2">
+              {amigos.data.slice(0, 4).map((amigo) => (
+                <li key={amigo.amigo_id} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="truncate font-extrabold">{amigo.amigo_nombre}</span>
+                  <span className="shrink-0 font-bold text-muted-foreground">{amigo.amigo_xp_total} XP</span>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="mt-3 text-sm font-bold text-muted-foreground">Todavía no tenés amigos.</p>}
+          <Link to="/amigos" className="mt-3 inline-flex text-sm font-extrabold text-primary">Ver amigos</Link>
+        </aside>
+        <aside className="rounded-2xl border-2 border-border bg-card p-3">
+          <h2 className="flex items-center gap-2 font-extrabold"><Trophy className="h-5 w-5 text-gold" /> Ranking semanal</h2>
+          <ol className="mt-3 space-y-2">
+            {(ranking.data ?? []).slice(0, 4).map((usuario, index) => (
+              <li key={usuario.id} className="flex items-center justify-between gap-2 text-sm">
+                <span className="truncate font-extrabold">{index + 1}. {usuario.nombre}</span>
+                <span className="shrink-0 font-bold text-muted-foreground">{usuario.xp_total} XP</span>
+              </li>
+            ))}
+          </ol>
+        </aside>
+        <section className="space-y-3 rounded-2xl border-2 border-border bg-card p-3">
+          <h2 className="flex items-center gap-2 font-extrabold"><Award className="h-5 w-5 text-gold" /> Insignias conseguidas</h2>
+          {insignias.data?.length ? (
+            <div className="space-y-2">
+              {insignias.data.map((insignia) => (
+                <article key={insignia.insignia_id} className="flex items-center gap-2 rounded-xl border-2 border-border p-2">
+                  <Award className="h-6 w-6 shrink-0 text-gold" />
+                  <div className="min-w-0">
+                    <h3 className="truncate text-sm font-extrabold">{insignia.insignia_nombre}</h3>
+                    <p className="truncate text-xs font-bold text-muted-foreground">{insignia.insignia_descripcion}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : <p className="text-sm font-bold text-muted-foreground">Todavía no conseguiste insignias.</p>}
+        </section>
       </div>
     </div>
+  );
+}
+
+function ContinueCourse({
+  userId,
+  inscripcion,
+}: {
+  userId: number;
+  inscripcion: { curso_id: number; curso_nivel: string; idioma_nombre: string; idioma_codigo: string };
+}) {
+  const { t } = useT();
+  const navigate = useNavigate();
+  const progreso = useQuery({
+    queryKey: ["progreso", userId, inscripcion.curso_id],
+    queryFn: () => api.progresoCurso(userId, inscripcion.curso_id),
+  });
+
+  const continuar = () => {
+    if (progreso.data?.proxima_leccion_id) {
+      navigate({ to: "/leccion/$leccionId", params: { leccionId: String(progreso.data.proxima_leccion_id) } });
+      return;
+    }
+    navigate({ to: "/curso/$cursoId", params: { cursoId: String(inscripcion.curso_id) } });
+  };
+
+  if (progreso.data && progreso.data.total_lecciones > 0 && progreso.data.completadas >= progreso.data.total_lecciones) {
+    return null;
+  }
+
+  return (
+    <article className="flex h-36 w-full max-w-56 flex-col justify-between rounded-2xl border-2 border-border bg-card p-3">
+      <div className="flex items-start gap-3">
+        <BookOpen className="mt-1 h-6 w-6 shrink-0 text-primary" />
+        <div>
+          <h3 className="text-lg font-extrabold">{inscripcion.idioma_nombre} · {inscripcion.curso_nivel}</h3>
+          <p className="mt-1 font-bold text-muted-foreground">
+            {progreso.data ? `${progreso.data.completadas}/${progreso.data.total_lecciones} ${t("course.lessons")}` : "Cargando progreso..."}
+          </p>
+        </div>
+      </div>
+      <DuoButton className="mt-3" size="sm" disabled={progreso.isLoading} onClick={continuar}>
+        {progreso.data?.proxima_leccion_id
+          ? progreso.data.completadas > 0 ? "Continuar" : "Comenzar"
+          : "Ver curso"} <ArrowRight className="h-4 w-4" />
+      </DuoButton>
+    </article>
   );
 }

@@ -6,11 +6,11 @@ import {
   Users,
   Award,
   User,
-  Settings,
   Flame,
   Zap,
   LogOut,
   Globe,
+  Home,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Penguin } from "./Penguin";
@@ -27,13 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NAV = [
+  { to: "/", key: "nav.home", icon: Home },
   { to: "/aprender", key: "nav.learn", icon: BookOpen },
   { to: "/cursos", key: "nav.courses", icon: Globe },
   { to: "/ranking", key: "nav.ranking", icon: Trophy },
   { to: "/amigos", key: "nav.friends", icon: Users },
   { to: "/insignias", key: "nav.badges", icon: Award },
   { to: "/perfil", key: "nav.profile", icon: User },
-  { to: "/admin", key: "nav.admin", icon: Settings },
 ] as const;
 
 export function LanguagePicker() {
@@ -79,12 +79,12 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b-2 border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-          <Link to="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Penguin className="h-9 w-9" />
             <span className="text-xl font-extrabold tracking-tight text-primary">
               {t("app.name")}
             </span>
-          </Link>
+          </div>
           <div className="flex-1" />
           {currentUser && (
             <div className="flex items-center gap-3 text-sm font-extrabold">
