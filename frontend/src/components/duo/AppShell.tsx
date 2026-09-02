@@ -31,6 +31,7 @@ const NAV = [
   { to: "/aprender", key: "nav.learn", icon: BookOpen },
   { to: "/cursos", key: "nav.courses", icon: Globe },
   { to: "/ranking", key: "nav.ranking", icon: Trophy },
+  { to: "/ranking-amigos", key: "nav.friendsRanking", icon: Trophy },
   { to: "/amigos", key: "nav.friends", icon: Users },
   { to: "/insignias", key: "nav.badges", icon: Award },
   { to: "/perfil", key: "nav.profile", icon: User },

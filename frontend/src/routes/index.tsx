@@ -91,7 +91,7 @@ function Landing() {
 }
 
 function Dashboard({ userId }: { userId: number }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const usuario = useQuery({
     queryKey: ["usuario", userId],
     queryFn: () => api.usuario(userId),
@@ -178,6 +178,7 @@ function Dashboard({ userId }: { userId: number }) {
                   <div className="min-w-0">
                     <h3 className="truncate text-sm font-extrabold">{insignia.insignia_nombre}</h3>
                     <p className="truncate text-xs font-bold text-muted-foreground">{insignia.insignia_descripcion}</p>
+                    <p className="text-xs font-bold text-muted-foreground">Conseguida el {new Intl.DateTimeFormat(lang).format(new Date(insignia.fecha))}</p>
                   </div>
                 </article>
               ))}

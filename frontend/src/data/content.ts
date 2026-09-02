@@ -1,6 +1,6 @@
 import type { UiLang } from "@/lib/i18n";
 
-export type TargetLang = "en" | "fr" | "de" | "it" | "pt";
+export type TargetLang = "es" | "en" | "fr" | "de" | "it" | "pt";
 export type Nivel = "A1" | "A2" | "B1" | "B2" | "C1";
 
 export interface Idioma {
@@ -11,6 +11,12 @@ export interface Idioma {
 }
 
 export const IDIOMAS: Idioma[] = [
+  {
+    id: "idi_es",
+    codigo: "es",
+    bandera: "https://flagcdn.com/w80/ar.png",
+    nombre: { es: "Español", en: "Spanish", pt: "Espanhol" },
+  },
   {
     id: "idi_en",
     codigo: "en",
@@ -268,7 +274,7 @@ function rowToPalabra(emoji: string, r: Row): Palabra {
   return {
     emoji,
     significado: { es: r[0], en: r[1], pt: r[2] },
-    traduccion: { en: r[3], fr: r[4], de: r[5], it: r[6], pt: r[7] },
+    traduccion: { es: r[0], en: r[3], fr: r[4], de: r[5], it: r[6], pt: r[7] },
   };
 }
 

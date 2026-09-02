@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from src.db.connection import get_db
-from src.dtos.amigos_dto import AmigosResponseDTO
+from src.dtos.amigos_dto import AmigosResponseDTO, RankingAmigosItemDTO
+from src.dtos.progreso_dto import ProgresoCursoDTO
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
 from src.schemas.usuario_schema import CreateUsuarioSchema, PasswordConfirmationSchema
 from src.services.amigos_service import AmigosService
+from src.services.progreso_service import ProgresoService
 from src.services.usuario_service import UsuarioService
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -31,6 +33,22 @@ def get_ranking_global(
 @router.get("/{usuario_id}/amigos", response_model=list[AmigosResponseDTO])
 def get_amigos_del_usuario(usuario_id: int, db: Session = Depends(get_db)):
     return AmigosService(db).get_amigos(usuario_id)
+
+
+@router.get("/{usuario_id}/ranking-amigos", response_model=list[RankingAmigosItemDTO])
+def get_ranking_amigos_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    result = AmigosService(db).get_ranking_amigos(usuario_id)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+    return result
+
+
+@router.get("/{usuario_id}/cursos/{curso_id}/progreso", response_model=ProgresoCursoDTO)
+def get_progreso_curso_usuario(usuario_id: int, curso_id: int, db: Session = Depends(get_db)):
+    result = ProgresoService(db).get_progreso_curso(usuario_id, curso_id)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Inscripción al curso no encontrada")
+    return result
 
 
 @router.get("/{usuario_id}", response_model=UsuarioResponseDTO)

@@ -22,7 +22,7 @@ class UsuariosRepository:
         return self.db.query(Usuario).filter(Usuario.email == email).first()
 
     def get_ranking(self, periodo: str = "global", limit: int | None = None) -> list[Usuario]:
-        query = self.db.query(Usuario).order_by(Usuario.xp_total.desc(), Usuario.id.asc())
+        query = self.db.query(Usuario).order_by(Usuario.xp_total.desc(), Usuario.racha_dias.desc(), Usuario.id.asc())
         return query.limit(limit).all() if limit is not None else query.all()
 
     def get_ranking_semanal(self) -> list[tuple[Usuario, int]]:
@@ -44,7 +44,7 @@ class UsuariosRepository:
         usuarios = self.db.query(Usuario).all()
         return sorted(
             [(usuario, int(xp_semanal.get(usuario.id, 0))) for usuario in usuarios],
-            key=lambda item: (-item[1], item[0].id),
+            key=lambda item: (-item[1], -item[0].racha_dias, item[0].id),
         )
 
     def update(self, usuario: Usuario) -> Usuario:

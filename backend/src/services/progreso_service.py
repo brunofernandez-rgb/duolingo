@@ -27,19 +27,20 @@ class ProgresoService:
         if not leccion or not usuario:
             return None
 
+        ahora = datetime.now()
         es_completada = dto.puntaje >= 60
         progreso_existente = self.repo.get_by_usuario_y_leccion(dto.usuario_id, leccion.id)
         ya_completada = progreso_existente is not None and progreso_existente.completada
         if progreso_existente:
             progreso_existente.puntaje = max(progreso_existente.puntaje, dto.puntaje)
             progreso_existente.completada = ya_completada or es_completada
+            progreso_existente.fecha = ahora
             progreso = self.repo.update(progreso_existente)
         else:
-            progreso = self.repo.create(dto.usuario_id, dto.leccion_id, dto.puntaje, es_completada)
+            progreso = self.repo.create(dto.usuario_id, dto.leccion_id, dto.puntaje, es_completada, ahora)
 
         if es_completada and not ya_completada:
             usuario.xp_total += leccion.xp_recompensa
-            ahora = datetime.now()
             if usuario.fecha_ultima_actividad:
                 diff = (ahora.date() - usuario.fecha_ultima_actividad.date()).days
                 usuario.racha_dias = usuario.racha_dias + 1 if diff == 1 else (1 if diff > 1 else usuario.racha_dias)

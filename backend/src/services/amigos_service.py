@@ -1,13 +1,15 @@
 from sqlalchemy.orm import Session
 
-from src.dtos.amigos_dto import AmigosResponseDTO, CreateAmigosDTO
+from src.dtos.amigos_dto import AmigosResponseDTO, CreateAmigosDTO, RankingAmigosItemDTO
 from src.mappers.amigos_mapper import to_amigos_response
 from src.repositories.amigos_repository import AmigosRepository
+from src.repositories.usuario_repository import UsuariosRepository
 
 
 class AmigosService:
     def __init__(self, db: Session):
         self.repo = AmigosRepository(db)
+        self.usuario_repo = UsuariosRepository(db)
 
     def create(self, dto: CreateAmigosDTO) -> AmigosResponseDTO | None:
         if dto.usuario_a == dto.usuario_b:
@@ -22,9 +24,23 @@ class AmigosService:
         resultados = self.repo.get_amigos_join_usuario(usuario_id)
         return [to_amigos_response(amigo, usuario) for amigo, usuario in resultados]
 
-    def get_ranking_amigos(self, usuario_id: int) -> list[AmigosResponseDTO]:
-        resultados = self.repo.get_ranking_amigos_join(usuario_id)
-        return [to_amigos_response(amigo, usuario) for amigo, usuario in resultados]
+    def get_ranking_amigos(self, usuario_id: int) -> list[RankingAmigosItemDTO]:
+        usuario = self.usuario_repo.get_by_id(usuario_id)
+        if not usuario:
+            return []
+        participantes = [usuario] + [usuario_amigo for _, usuario_amigo in self.repo.get_ranking_amigos_join(usuario_id)]
+        participantes.sort(key=lambda item: (-item.xp_total, -item.racha_dias, item.id))
+        return [
+            RankingAmigosItemDTO(
+                posicion=posicion,
+                usuario_id=participante.id,
+                nombre=participante.nombre,
+                email=participante.email,
+                xp_total=participante.xp_total,
+                racha_dias=participante.racha_dias,
+            )
+            for posicion, participante in enumerate(participantes, start=1)
+        ]
 
     def delete(self, usuario_a: int, usuario_b: int) -> bool:
         amigo = self.repo.get_by_id(usuario_a, usuario_b) or self.repo.get_by_id(usuario_b, usuario_a)

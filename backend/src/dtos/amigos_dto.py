@@ -33,3 +33,13 @@ class AmigosResponseDTO(BaseModel):
     amigo_fecha_ultima_actividad: datetime | None = None
 
     model_config = {"from_attributes": True}
+
+
+class RankingAmigosItemDTO(BaseModel):
+    posicion: int
+    usuario_id: int
+    nombre: str
+    email: str
+    xp_total: int
+    racha_dias: int
+

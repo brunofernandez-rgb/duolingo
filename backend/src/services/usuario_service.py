@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session
 
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
@@ -17,7 +19,15 @@ class UsuarioService:
 
     def get_by_id(self, usuario_id: int) -> UsuarioResponseDTO | None:
         res = self.repo.get_by_id(usuario_id)
+        self._reset_streak_if_missed_day(res)
         return to_usuario_response(res) if res else None
+
+    def _reset_streak_if_missed_day(self, usuario) -> None:
+        if not usuario or not usuario.fecha_ultima_actividad:
+            return
+        if usuario.fecha_ultima_actividad.date() < (datetime.now().date() - timedelta(days=1)):
+            usuario.racha_dias = 0
+            self.repo.update(usuario)
 
     def get_ranking_global(self, periodo: str = "global") -> list[UsuarioResponseDTO]:
         if periodo == "semanal":

@@ -18,6 +18,7 @@ import { Route as CursosRouteImport } from './routes/cursos'
 import { Route as InsigniasRouteImport } from './routes/insignias'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as RankingAmigosRouteImport } from './routes/ranking-amigos'
 import { Route as CursoCursoIdRouteImport } from './routes/curso/$cursoId'
 import { Route as LeccionLeccionIdRouteImport } from './routes/leccion/$leccionId'
 
@@ -66,6 +67,11 @@ const RankingRoute = RankingRouteImport.update({
   path: '/ranking',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RankingAmigosRoute = RankingAmigosRouteImport.update({
+  id: '/ranking-amigos',
+  path: '/ranking-amigos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CursoCursoIdRoute = CursoCursoIdRouteImport.update({
   id: '/curso/$cursoId',
   path: '/curso/$cursoId',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/insignias': typeof InsigniasRoute
   '/perfil': typeof PerfilRoute
   '/ranking': typeof RankingRoute
+  '/ranking-amigos': typeof RankingAmigosRoute
   '/curso/$cursoId': typeof CursoCursoIdRoute
   '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/insignias': typeof InsigniasRoute
   '/perfil': typeof PerfilRoute
   '/ranking': typeof RankingRoute
+  '/ranking-amigos': typeof RankingAmigosRoute
   '/curso/$cursoId': typeof CursoCursoIdRoute
   '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/insignias': typeof InsigniasRoute
   '/perfil': typeof PerfilRoute
   '/ranking': typeof RankingRoute
+  '/ranking-amigos': typeof RankingAmigosRoute
   '/curso/$cursoId': typeof CursoCursoIdRoute
   '/leccion/$leccionId': typeof LeccionLeccionIdRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/insignias'
     | '/perfil'
     | '/ranking'
+    | '/ranking-amigos'
     | '/curso/$cursoId'
     | '/leccion/$leccionId'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/insignias'
     | '/perfil'
     | '/ranking'
+    | '/ranking-amigos'
     | '/curso/$cursoId'
     | '/leccion/$leccionId'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/insignias'
     | '/perfil'
     | '/ranking'
+    | '/ranking-amigos'
     | '/curso/$cursoId'
     | '/leccion/$leccionId'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   InsigniasRoute: typeof InsigniasRoute
   PerfilRoute: typeof PerfilRoute
   RankingRoute: typeof RankingRoute
+  RankingAmigosRoute: typeof RankingAmigosRoute
   CursoCursoIdRoute: typeof CursoCursoIdRoute
   LeccionLeccionIdRoute: typeof LeccionLeccionIdRoute
 }
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RankingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ranking-amigos': {
+      id: '/ranking-amigos'
+      path: '/ranking-amigos'
+      fullPath: '/ranking-amigos'
+      preLoaderRoute: typeof RankingAmigosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/curso/$cursoId': {
       id: '/curso/$cursoId'
       path: '/curso/$cursoId'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsigniasRoute: InsigniasRoute,
   PerfilRoute: PerfilRoute,
   RankingRoute: RankingRoute,
+  RankingAmigosRoute: RankingAmigosRoute,
   CursoCursoIdRoute: CursoCursoIdRoute,
   LeccionLeccionIdRoute: LeccionLeccionIdRoute,
 }

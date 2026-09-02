@@ -64,7 +64,7 @@ class AmigosRepository:
             self.db.query(Amigos, Usuario)
             .join(Usuario, Usuario.id == amigo_id)
             .filter(or_(Amigos.usuario_a == usuario_id, Amigos.usuario_b == usuario_id))
-            .order_by(Usuario.xp_total.desc(), Usuario.id.asc())
+            .order_by(Usuario.xp_total.desc(), Usuario.racha_dias.desc(), Usuario.id.asc())
             .all()
         )
 

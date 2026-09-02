@@ -72,6 +72,15 @@ export interface ApiAmigo {
   fecha: string;
 }
 
+export interface ApiRankingAmigosItem {
+  posicion: number;
+  usuario_id: number;
+  nombre: string;
+  email: string;
+  xp_total: number;
+  racha_dias: number;
+}
+
 export interface ApiSolicitudAmistad {
   id: number;
   solicitante_id: number;
@@ -159,7 +168,7 @@ export const api = {
   lecciones: (cursoId: number) => request<ApiLeccion[]>(`/lecciones/curso/${cursoId}`),
   leccion: (id: number) => request<ApiLeccion>(`/lecciones/${id}`),
   progresoCurso: (usuarioId: number, cursoId: number) =>
-    request<ApiProgresoCurso>(`/progresos/usuarios/${usuarioId}/cursos/${cursoId}`),
+    request<ApiProgresoCurso>(`/usuarios/${usuarioId}/cursos/${cursoId}/progreso`),
   intento: (usuarioId: number, leccionId: number, puntaje: number) => {
     if (!Number.isInteger(usuarioId) || usuarioId <= 0 || !Number.isInteger(leccionId) || leccionId <= 0) {
       throw new ApiError("Sesión o lección inválida. Iniciá sesión nuevamente.", 400);
@@ -175,6 +184,7 @@ export const api = {
   ranking: (periodo: "global" | "semanal" | "mensual") =>
     request<ApiRankingUser[]>(`/usuarios/ranking?periodo=${periodo}`),
   amigos: (usuarioId: number) => request<ApiAmigo[]>(`/usuarios/${usuarioId}/amigos`),
+  rankingAmigos: (usuarioId: number) => request<ApiRankingAmigosItem[]>(`/usuarios/${usuarioId}/ranking-amigos`),
   solicitarAmigo: (usuarioId: number, email: string) =>
     request<ApiSolicitudAmistad>("/solicitudes-amistad/", {
       method: "POST",

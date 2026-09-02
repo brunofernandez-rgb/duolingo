@@ -199,6 +199,48 @@ WHERE NOT EXISTS (
     WHERE leccion.curso_id = curso.id AND leccion.orden = lecciones.orden
 );
 
+DELETE FROM leccion_vocabulario;
+
+INSERT INTO leccion_vocabulario (leccion_id, emoji, fuente, traduccion_en, traduccion_fr, traduccion_de, traduccion_it, traduccion_pt)
+SELECT l.id, v.emoji, v.fuente, v.traduccion_en, v.traduccion_fr, v.traduccion_de, v.traduccion_it, v.traduccion_pt
+FROM leccion l
+JOIN (VALUES
+    (1, '👋', 'hola', 'hello', 'bonjour', 'hallo', 'ciao', 'olá'),
+    (1, '😊', 'mucho gusto', 'nice to meet you', 'enchanté', 'freut mich', 'piacere', 'prazer'),
+    (1, '🙋', 'me llamo', 'my name is', 'je m''appelle', 'ich heiße', 'mi chiamo', 'meu nome é'),
+    (1, '❓', '¿cómo estás?', 'how are you?', 'comment ça va ?', 'wie geht''s?', 'come stai?', 'como vai?'),
+    (1, '🙏', 'gracias', 'thank you', 'merci', 'danke', 'grazie', 'obrigado'),
+    (1, '👋', 'adiós', 'goodbye', 'au revoir', 'tschüss', 'arrivederci', 'tchau'),
+    (2, '👩', 'madre', 'mother', 'mère', 'Mutter', 'madre', 'mãe'),
+    (2, '👨', 'padre', 'father', 'père', 'Vater', 'padre', 'pai'),
+    (2, '👧', 'hermana', 'sister', 'sœur', 'Schwester', 'sorella', 'irmã'),
+    (2, '👦', 'hermano', 'brother', 'frère', 'Bruder', 'fratello', 'irmão'),
+    (2, '👵', 'abuela', 'grandmother', 'grand-mère', 'Oma', 'nonna', 'avó'),
+    (2, '👶', 'bebé', 'baby', 'bébé', 'Baby', 'bambino', 'bebê'),
+    (3, '🍎', 'manzana', 'apple', 'pomme', 'Apfel', 'mela', 'maçã'),
+    (3, '🍞', 'pan', 'bread', 'pain', 'Brot', 'pane', 'pão'),
+    (3, '💧', 'agua', 'water', 'eau', 'Wasser', 'acqua', 'água'),
+    (3, '🥛', 'leche', 'milk', 'lait', 'Milch', 'latte', 'leite'),
+    (3, '🧀', 'queso', 'cheese', 'fromage', 'Käse', 'formaggio', 'queijo'),
+    (3, '☕', 'café', 'coffee', 'café', 'Kaffee', 'caffè', 'café'),
+    (4, '⏰', 'despertarse', 'wake up', 'se réveiller', 'aufwachen', 'svegliarsi', 'acordar'),
+    (4, '🍳', 'desayunar', 'have breakfast', 'prendre le petit-déjeuner', 'frühstücken', 'fare colazione', 'tomar café da manhã'),
+    (4, '🚿', 'ducharse', 'take a shower', 'prendre une douche', 'duschen', 'fare la doccia', 'tomar banho'),
+    (4, '📚', 'estudiar', 'study', 'étudier', 'lernen', 'studiare', 'estudar'),
+    (4, '🍽️', 'cenar', 'have dinner', 'dîner', 'zu Abend essen', 'cenare', 'jantar'),
+    (4, '🛏️', 'dormir', 'sleep', 'dormir', 'schlafen', 'dormire', 'dormir'),
+    (5, '🙏', 'por favor', 'please', 's''il vous plaît', 'bitte', 'per favore', 'por favor'),
+    (5, '🙇', 'perdón', 'sorry', 'pardon', 'Entschuldigung', 'scusa', 'desculpa'),
+    (5, '📍', '¿dónde está?', 'where is it?', 'où est-ce ?', 'wo ist es?', 'dov''è?', 'onde fica?'),
+    (5, '💬', 'no entiendo', 'I do not understand', 'je ne comprends pas', 'ich verstehe nicht', 'non capisco', 'não entendo'),
+    (5, '🔁', 'repita, por favor', 'please repeat', 'répétez, s''il vous plaît', 'bitte wiederholen', 'ripeta, per favore', 'repita, por favor'),
+    (5, '✅', 'hasta luego', 'see you later', 'à bientôt', 'bis später', 'a dopo', 'até logo')
+) AS v(orden, emoji, fuente, traduccion_en, traduccion_fr, traduccion_de, traduccion_it, traduccion_pt)
+ON v.orden = l.orden
+WHERE NOT EXISTS (
+    SELECT 1 FROM leccion_vocabulario lv WHERE lv.leccion_id = l.id AND lv.fuente = v.fuente
+);
+
 INSERT INTO insignia (nombre, descripcion, criterio)
 SELECT insignias.nombre, insignias.descripcion, insignias.criterio
 FROM (VALUES

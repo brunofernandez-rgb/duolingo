@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/duo/RequireAuth";
 import { DuoButton } from "@/components/duo/DuoButton";
@@ -62,6 +62,12 @@ function Cursos({ user }: { user: { id: string } }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["inscripciones", userId] }),
     onError: (error) => toast.error(error instanceof Error ? error.message : t("course.leave")),
   });
+  const progresoQueries = useQueries({
+    queries: (inscripcionesQuery.data ?? []).map((inscripcion) => ({
+      queryKey: ["progreso", userId, inscripcion.curso_id],
+      queryFn: () => api.progresoCurso(userId, inscripcion.curso_id),
+    })),
+  });
 
   if (cursosQuery.isLoading || idiomasQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando cursos...</p>;
   if (cursosQuery.isError || idiomasQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
@@ -101,7 +107,12 @@ function Cursos({ user }: { user: { id: string } }) {
                             {t("course.level")} {curso.nivel}
                           </p>
                           <p className="text-sm font-bold text-muted-foreground">
-                            {t("course.lessons")}
+                            {(() => {
+                              const progresoCurso = progresoQueries
+                                .map((query) => query.data)
+                                .find((item) => item?.curso_id === curso.id);
+                              return progresoCurso ? `${progresoCurso.completadas}/${progresoCurso.total_lecciones} ${t("course.lessons")}` : t("course.lessons");
+                            })()}
                           </p>
                         </div>
                         <img className="h-8 w-12 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={`Bandera de ${idioma.nombre}`} />

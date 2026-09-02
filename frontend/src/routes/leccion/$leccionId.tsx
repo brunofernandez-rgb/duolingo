@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Trophy, XCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DuoButton } from "@/components/duo/DuoButton";
@@ -31,22 +31,15 @@ function Leccion({ user }: { user: { id: string } }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
   const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [finalScore, setFinalScore] = useState<number | null>(null);
+  const [finalCorrectAnswers, setFinalCorrectAnswers] = useState(0);
   const lesson = useQuery({ queryKey: ["leccion", leccionId], queryFn: () => api.leccion(Number(leccionId)) });
   const attempt = useMutation({
     mutationFn: (puntaje: number) => api.intento(Number(user.id), Number(leccionId), puntaje),
     onSuccess: (_, puntaje) => {
       queryClient.invalidateQueries({ queryKey: ["progreso"] });
       queryClient.invalidateQueries({ queryKey: ["usuario", user.id] });
-      if (puntaje >= 60) {
-        toast.success(t("lesson.passed"));
-        navigate({ to: "/curso/$cursoId", params: { cursoId: String(lesson.data?.curso_id) } });
-      } else {
-        toast.error(t("lesson.failed"));
-        setQuestionIndex(0);
-        setSelected(null);
-        setChecked(false);
-        setCorrectAnswers(0);
-      }
+      setFinalScore(puntaje);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t("lesson.failed")),
   });
@@ -60,6 +53,40 @@ function Leccion({ user }: { user: { id: string } }) {
   const isCorrect = selected === question.translation;
   const lastQuestion = questionIndex === questions.length - 1;
 
+  if (finalScore !== null) {
+    return (
+      <div className="mx-auto max-w-xl space-y-6 text-center">
+        <Trophy className="mx-auto h-14 w-14 text-gold" />
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">{lesson.data.titulo}</p>
+          <h1 className="mt-2 text-3xl font-extrabold">Resultado de la lección</h1>
+        </div>
+        <div className="rounded-3xl border-2 border-border bg-card p-8">
+          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">Puntaje</p>
+          <p className="mt-2 text-7xl font-extrabold text-primary">{finalScore}<span className="text-3xl">/100</span></p>
+          <p className="mt-4 font-bold text-muted-foreground">{finalCorrectAnswers} de {questions.length} respuestas correctas</p>
+          <p className={`mt-3 font-extrabold ${finalScore >= 60 ? "text-success" : "text-destructive"}`}>
+            {finalScore >= 60 ? t("lesson.passed") : t("lesson.failed")}
+          </p>
+        </div>
+        {finalScore >= 60 ? (
+          <DuoButton block onClick={() => navigate({ to: "/curso/$cursoId", params: { cursoId: String(lesson.data.curso_id) } })}>
+            Volver al curso
+          </DuoButton>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <DuoButton onClick={() => { setFinalScore(null); setQuestionIndex(0); setSelected(null); setChecked(false); setCorrectAnswers(0); setFinalCorrectAnswers(0); }}>
+              Repetir
+            </DuoButton>
+            <DuoButton variant="outline" onClick={() => navigate({ to: "/curso/$cursoId", params: { cursoId: String(lesson.data.curso_id) } })}>
+              Volver al curso
+            </DuoButton>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const checkAnswer = () => {
     if (!selected || checked) return;
     setChecked(true);
@@ -69,7 +96,8 @@ function Leccion({ user }: { user: { id: string } }) {
   const nextQuestion = () => {
     if (!checked) return;
     if (lastQuestion) {
-      const score = Math.round(((correctAnswers + (isCorrect ? 1 : 0)) / questions.length) * 100);
+      const score = Math.round((correctAnswers / questions.length) * 100);
+      setFinalCorrectAnswers(correctAnswers);
       attempt.mutate(score);
       return;
     }
@@ -80,7 +108,7 @@ function Leccion({ user }: { user: { id: string } }) {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <Link to="/cursos" className="text-sm font-extrabold text-primary">← {t("lesson.exit")}</Link>
+      <Link to="/curso/$cursoId" params={{ cursoId: String(lesson.data.curso_id) }} className="text-sm font-extrabold text-primary">← {t("lesson.exit")}</Link>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm font-extrabold text-muted-foreground">
           <span>{lesson.data.titulo}</span>
