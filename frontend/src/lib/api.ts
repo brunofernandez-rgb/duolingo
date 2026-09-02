@@ -143,6 +143,16 @@ export const api = {
       body: JSON.stringify({ nombre, email, password }),
     }),
   usuario: (id: number) => request<ApiUsuario>(`/usuarios/${id}`),
+  verificarPassword: (id: number, password: string) =>
+    request<{ verified: boolean }>(`/usuarios/${id}/verificar-password`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    }),
+  eliminarCuenta: (id: number, password: string) =>
+    request<void>(`/usuarios/${id}`, {
+      method: "DELETE",
+      body: JSON.stringify({ password }),
+    }),
   idiomas: () => request<ApiIdioma[]>("/idiomas/"),
   cursos: () => request<ApiCurso[]>("/cursos/"),
   curso: (id: number) => request<ApiCurso>(`/cursos/${id}`),

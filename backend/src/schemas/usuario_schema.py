@@ -23,5 +23,9 @@ class DeleteUsuarioSchema(BaseModel):
     id: int
 
 
+class PasswordConfirmationSchema(BaseModel):
+    password: str = Field(min_length=1)
+
+
 class GetUsuarioSchema(BaseModel):
     id: int

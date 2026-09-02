@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
 from src.mappers.usuarios_mapper import to_usuario_response
 from src.repositories.usuario_repository import UsuariosRepository
-from src.utils.hash import hash_password
+from src.utils.hash import hash_password, verify_password
 
 
 class UsuarioService:
@@ -32,4 +32,15 @@ class UsuarioService:
         if not res:
             return False
         self.repo.delete(res)
+        return True
+
+    def verify_password(self, usuario_id: int, password: str) -> bool:
+        usuario = self.repo.get_by_id(usuario_id)
+        return bool(usuario and verify_password(password, usuario.password_hash))
+
+    def delete_with_password(self, usuario_id: int, password: str) -> bool:
+        usuario = self.repo.get_by_id(usuario_id)
+        if not usuario or not verify_password(password, usuario.password_hash):
+            return False
+        self.repo.delete(usuario)
         return True
