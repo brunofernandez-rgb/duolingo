@@ -19,10 +19,13 @@ from src.routers import (
     solicitud_amistad_router,
 )
 from src.utils.errors import AppError
-from src.db.connection import Base, engine
+from src.db.connection import Base, SessionLocal, engine
 from src.db.models.leccion_model import Leccion
+from src.db.seed import seed_insignias
 
 Base.metadata.create_all(bind=engine)
+with SessionLocal() as db:
+    seed_insignias(db)
 
 app = FastAPI(title="Initial Structure API")
 
