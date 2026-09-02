@@ -79,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b-2 border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-          <Link to="/aprender" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Penguin className="h-9 w-9" />
             <span className="text-xl font-extrabold tracking-tight text-primary">
               {t("app.name")}

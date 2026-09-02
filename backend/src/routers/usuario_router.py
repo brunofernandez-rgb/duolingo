@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from src.db.connection import get_db
 from src.dtos.amigos_dto import AmigosResponseDTO
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
-from src.schemas.usuario_schema import CreateUsuarioSchema
+from src.schemas.usuario_schema import CreateUsuarioSchema, PasswordConfirmationSchema
 from src.services.amigos_service import AmigosService
 from src.services.usuario_service import UsuarioService
 
@@ -42,6 +42,13 @@ def get_usuario(usuario_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_usuario(usuario_id: int, db: Session = Depends(get_db)):
-    if not UsuarioService(db).delete(usuario_id):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+def delete_usuario(usuario_id: int, payload: PasswordConfirmationSchema, db: Session = Depends(get_db)):
+    if not UsuarioService(db).delete_with_password(usuario_id, payload.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Contraseña incorrecta")
+
+
+@router.post("/{usuario_id}/verificar-password")
+def verify_usuario_password(usuario_id: int, payload: PasswordConfirmationSchema, db: Session = Depends(get_db)):
+    if not UsuarioService(db).verify_password(usuario_id, payload.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Contraseña incorrecta")
+    return {"verified": True}
