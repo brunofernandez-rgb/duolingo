@@ -74,8 +74,8 @@ function Cursos({ user }: { user: { id: string } }) {
 
       {(idiomasQuery.data ?? []).map((idioma) => {
         const cursosIdioma = cursos.filter(
-          (curso) => inscripciones.has(curso.id) &&
-            curso.idioma_codigo === idioma.codigo &&
+            (curso) => inscripciones.has(curso.id) &&
+              curso.idioma_codigo === idioma.codigo &&
             (!idiomaSeleccionado || curso.idioma_codigo === idiomaSeleccionado),
         );
         if (!cursosIdioma.length) return null;
@@ -135,10 +135,10 @@ function Cursos({ user }: { user: { id: string } }) {
                         ) : (
                           <DuoButton
                             block
+                            disabled={inscribirMutation.isPending}
                             onClick={() => {
                               inscribirMutation.mutate(curso.id);
                             }}
-                            disabled={inscribirMutation.isPending}
                           >
                             {t("course.enroll")}
                           </DuoButton>

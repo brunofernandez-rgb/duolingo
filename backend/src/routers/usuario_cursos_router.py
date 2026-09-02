@@ -13,7 +13,10 @@ router = APIRouter(prefix="/usuario-cursos", tags=["usuario-cursos"])
 def inscribir_usuario(payload: CreateUsuarioCursosSchema, db: Session = Depends(get_db)):
     result = UsuarioCursosService(db).create(CreateUsuarioCursosDTO(**payload.model_dump()))
     if result is None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El usuario ya está inscrito en el curso")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="El usuario ya está inscrito en ese idioma o el curso no existe",
+        )
     return result
 
 

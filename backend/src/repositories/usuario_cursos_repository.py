@@ -25,6 +25,14 @@ class UsuarioCursosRepository:
             .first()
         )
 
+    def get_by_usuario_id_and_idioma(self, usuario_id: int, idioma_id: int) -> UsuarioCurso | None:
+        return (
+            self.db.query(UsuarioCurso)
+            .join(Curso, UsuarioCurso.curso_id == Curso.id)
+            .filter(UsuarioCurso.usuario_id == usuario_id, Curso.idioma_id == idioma_id)
+            .first()
+        )
+
     def get_by_usuario_id(self, usuario_id: int) -> list[UsuarioCurso]:
         """Obtiene todos los cursos en los que está inscrito un usuario."""
         return self.db.query(UsuarioCurso).filter(UsuarioCurso.usuario_id == usuario_id).all()

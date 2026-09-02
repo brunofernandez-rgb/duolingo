@@ -627,5 +627,6 @@ export function contenidoDeLeccion(l: Leccion) {
 }
 
 export function usuarioActual(s: DBState) {
-  return s.sesion ? (s.usuarios.find((u) => u.id === s.sesion) ?? null) : null;
+  if (!s.sesion || !/^\d+$/.test(s.sesion)) return null;
+  return s.usuarios.find((u) => u.id === s.sesion) ?? null;
 }

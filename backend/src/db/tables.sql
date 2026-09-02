@@ -37,6 +37,77 @@ CREATE TABLE leccion (
     CONSTRAINT fk_leccion_curso FOREIGN KEY (curso_id) REFERENCES curso(id) ON DELETE CASCADE
 );
 
+CREATE TABLE leccion_vocabulario (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    leccion_id INT NOT NULL,
+    emoji VARCHAR(10) NOT NULL,
+    fuente VARCHAR(255) NOT NULL,
+    traduccion_en VARCHAR(255) NOT NULL,
+    traduccion_fr VARCHAR(255) NOT NULL,
+    traduccion_de VARCHAR(255) NOT NULL,
+    traduccion_it VARCHAR(255) NOT NULL,
+    traduccion_pt VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_vocabulario_leccion FOREIGN KEY (leccion_id) REFERENCES leccion(id) ON DELETE CASCADE
+);
+
+INSERT INTO leccion_vocabulario (leccion_id, emoji, fuente, traduccion_en, traduccion_fr, traduccion_de, traduccion_it, traduccion_pt)
+SELECT l.id, v.emoji, v.fuente, v.traduccion_en, v.traduccion_fr, v.traduccion_de, v.traduccion_it, v.traduccion_pt
+FROM leccion l
+JOIN (VALUES
+    (1, '👋', 'hola', 'hello', 'bonjour', 'hallo', 'ciao', 'olá'),
+    (1, '😊', 'mucho gusto', 'nice to meet you', 'enchanté', 'freut mich', 'piacere', 'prazer'),
+    (1, '🙋', 'me llamo', 'my name is', 'je m''appelle', 'ich heiße', 'mi chiamo', 'meu nome é'),
+    (1, '❓', '¿cómo estás?', 'how are you?', 'comment ça va ?', 'wie geht''s?', 'come stai?', 'como vai?'),
+    (1, '🙏', 'gracias', 'thank you', 'merci', 'danke', 'grazie', 'obrigado'),
+    (1, '👋', 'adiós', 'goodbye', 'au revoir', 'tschüss', 'arrivederci', 'tchau'),
+    (2, '1️⃣', 'uno', 'one', 'un', 'eins', 'uno', 'um'),
+    (2, '2️⃣', 'dos', 'two', 'deux', 'zwei', 'due', 'dois'),
+    (2, '3️⃣', 'tres', 'three', 'trois', 'drei', 'tre', 'três'),
+    (2, '4️⃣', 'cuatro', 'four', 'quatre', 'vier', 'quattro', 'quatro'),
+    (2, '5️⃣', 'cinco', 'five', 'cinq', 'fünf', 'cinque', 'cinco'),
+    (2, '🔟', 'diez', 'ten', 'dix', 'zehn', 'dieci', 'dez'),
+    (3, '👩', 'madre', 'mother', 'mère', 'Mutter', 'madre', 'mãe'),
+    (3, '👨', 'padre', 'father', 'père', 'Vater', 'padre', 'pai'),
+    (3, '👧', 'hermana', 'sister', 'sœur', 'Schwester', 'sorella', 'irmã'),
+    (3, '👦', 'hermano', 'brother', 'frère', 'Bruder', 'fratello', 'irmão'),
+    (3, '👵', 'abuela', 'grandmother', 'grand-mère', 'Oma', 'nonna', 'avó'),
+    (3, '👶', 'bebé', 'baby', 'bébé', 'Baby', 'bambino', 'bebê'),
+    (4, '🍎', 'manzana', 'apple', 'pomme', 'Apfel', 'mela', 'maçã'),
+    (4, '🍞', 'pan', 'bread', 'pain', 'Brot', 'pane', 'pão'),
+    (4, '💧', 'agua', 'water', 'eau', 'Wasser', 'acqua', 'água'),
+    (4, '🥛', 'leche', 'milk', 'lait', 'Milch', 'latte', 'leite'),
+    (4, '🧀', 'queso', 'cheese', 'fromage', 'Käse', 'formaggio', 'queijo'),
+    (4, '☕', 'café', 'coffee', 'café', 'Kaffee', 'caffè', 'café'),
+    (5, '🔴', 'rojo', 'red', 'rouge', 'rot', 'rosso', 'vermelho'),
+    (5, '🔵', 'azul', 'blue', 'bleu', 'blau', 'blu', 'azul'),
+    (5, '🟢', 'verde', 'green', 'vert', 'grün', 'verde', 'verde'),
+    (5, '🟡', 'amarillo', 'yellow', 'jaune', 'gelb', 'giallo', 'amarelo'),
+    (5, '⚫', 'negro', 'black', 'noir', 'schwarz', 'nero', 'preto'),
+    (5, '⚪', 'blanco', 'white', 'blanc', 'weiß', 'bianco', 'branco'),
+    (6, '🐧', 'pingüino', 'penguin', 'manchot', 'Pinguin', 'pinguino', 'pinguim'),
+    (6, '🐶', 'perro', 'dog', 'chien', 'Hund', 'cane', 'cachorro'),
+    (6, '🐱', 'gato', 'cat', 'chat', 'Katze', 'gatto', 'gato'),
+    (6, '🐦', 'pájaro', 'bird', 'oiseau', 'Vogel', 'uccello', 'pássaro'),
+    (6, '🐟', 'pez', 'fish', 'poisson', 'Fisch', 'pesce', 'peixe'),
+    (6, '🐴', 'caballo', 'horse', 'cheval', 'Pferd', 'cavallo', 'cavalo'),
+    (7, '🏙️', 'ciudad', 'city', 'ville', 'Stadt', 'città', 'cidade'),
+    (7, '🛣️', 'calle', 'street', 'rue', 'Straße', 'strada', 'rua'),
+    (7, '🏛️', 'museo', 'museum', 'musée', 'Museum', 'museo', 'museu'),
+    (7, '🏪', 'tienda', 'shop', 'magasin', 'Geschäft', 'negozio', 'loja'),
+    (7, '🚉', 'estación', 'station', 'gare', 'Bahnhof', 'stazione', 'estação'),
+    (7, '🌳', 'parque', 'park', 'parc', 'Park', 'parco', 'parque'),
+    (8, '✈️', 'avión', 'plane', 'avion', 'Flugzeug', 'aereo', 'avião'),
+    (8, '🎟️', 'billete', 'ticket', 'billet', 'Ticket', 'biglietto', 'bilhete'),
+    (8, '🧳', 'maleta', 'suitcase', 'valise', 'Koffer', 'valigia', 'mala'),
+    (8, '🏨', 'hotel', 'hotel', 'hôtel', 'Hotel', 'albergo', 'hotel'),
+    (8, '🗺️', 'mapa', 'map', 'carte', 'Karte', 'mappa', 'mapa'),
+    (8, '🏖️', 'playa', 'beach', 'plage', 'Strand', 'spiaggia', 'praia')
+) AS v(orden, emoji, fuente, traduccion_en, traduccion_fr, traduccion_de, traduccion_it, traduccion_pt)
+ON v.orden = l.orden
+WHERE NOT EXISTS (
+    SELECT 1 FROM leccion_vocabulario lv WHERE lv.leccion_id = l.id
+);
+
 CREATE TABLE progreso (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     usuario_id INT NOT NULL,

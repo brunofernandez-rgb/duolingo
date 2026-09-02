@@ -47,6 +47,7 @@ function Aprender({ user }: { user: { id: string } }) {
   if (idiomasQuery.isLoading || cursosQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando idiomas...</p>;
   if (idiomasQuery.isError || cursosQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los idiomas.</p>;
   const inscripciones = new Set((inscripcionesQuery.data ?? []).map((item) => item.curso_id));
+  const idiomasInscritos = new Set((inscripcionesQuery.data ?? []).map((item) => item.idioma_codigo));
 
   return (
     <div className="space-y-8">
@@ -88,15 +89,16 @@ function Aprender({ user }: { user: { id: string } }) {
                   toast.error("Este idioma todavía no tiene cursos disponibles");
                   return;
                 }
-                if (inscripciones.has(curso.id)) {
-                  navigate({ to: "/cursos", search: { idioma: idioma.codigo } });
+                if (idiomasInscritos.has(idioma.codigo)) {
+                  const inscripcion = inscripcionesQuery.data?.find((item) => item.idioma_codigo === idioma.codigo);
+                  toast.info(`Ya estás inscrito en ${idioma.nombre} nivel ${inscripcion?.curso_nivel ?? "otro nivel"}`);
                   return;
                 }
                 inscribirMutation.mutate(curso.id);
               }}
             >
-              {inscripciones.has(cursosQuery.data?.find((curso) => curso.idioma_codigo === idioma.codigo && curso.nivel === (niveles[idioma.codigo] ?? "A1"))?.id ?? -1)
-                ? t("course.continue")
+              {idiomasInscritos.has(idioma.codigo)
+                ? "Ya estás inscrito"
                 : t("course.enroll")}
             </DuoButton>
           </article>

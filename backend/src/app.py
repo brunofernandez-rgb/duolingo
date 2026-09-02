@@ -19,6 +19,10 @@ from src.routers import (
     solicitud_amistad_router,
 )
 from src.utils.errors import AppError
+from src.db.connection import Base, engine
+from src.db.models.leccion_model import Leccion
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Initial Structure API")
 

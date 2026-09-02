@@ -2,7 +2,7 @@ from src.db.models.curso_model import Curso
 from src.db.models.idioma_model import Idioma
 from src.db.models.leccion_model import Leccion
 
-from ..dtos.leccion_dto import LeccionResponseDTO
+from ..dtos.leccion_dto import LeccionResponseDTO, LeccionVocabularioDTO
 
 
 def to_leccion_response(
@@ -21,4 +21,12 @@ def to_leccion_response(
         idioma_id=idioma.id,
         idioma_nombre=idioma.nombre,
         idioma_codigo=idioma.codigo,
+        vocabulario=[
+            LeccionVocabularioDTO(
+                emoji=palabra.emoji,
+                fuente=palabra.fuente,
+                traduccion=getattr(palabra, f"traduccion_{idioma.codigo}", palabra.fuente),
+            )
+            for palabra in leccion.vocabulario
+        ],
     )

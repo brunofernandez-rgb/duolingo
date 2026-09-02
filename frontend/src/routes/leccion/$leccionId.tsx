@@ -10,40 +10,6 @@ import { useT } from "@/lib/useT";
 
 type Vocabulary = { source: string; translation: string };
 
-const VOCABULARY: Record<string, Record<string, Vocabulary[]>> = {
-  es: {
-    A1: [{ source: "hello", translation: "hola" }, { source: "thank you", translation: "gracias" }, { source: "water", translation: "agua" }, { source: "house", translation: "casa" }, { source: "friend", translation: "amigo" }],
-    advanced: [{ source: "I need help", translation: "necesito ayuda" }, { source: "where is the station?", translation: "¿dónde está la estación?" }, { source: "I like learning", translation: "me gusta aprender" }, { source: "I arrive tomorrow", translation: "llego mañana" }, { source: "how much does it cost?", translation: "¿cuánto cuesta?" }],
-  },
-  en: {
-    A1: [{ source: "hola", translation: "hello" }, { source: "gracias", translation: "thank you" }, { source: "agua", translation: "water" }, { source: "casa", translation: "house" }, { source: "amigo", translation: "friend" }],
-    advanced: [{ source: "necesito ayuda", translation: "I need help" }, { source: "¿dónde está la estación?", translation: "where is the station?" }, { source: "me gusta aprender", translation: "I like learning" }, { source: "llego mañana", translation: "I arrive tomorrow" }, { source: "¿cuánto cuesta?", translation: "how much does it cost?" }],
-  },
-  pt: {
-    A1: [{ source: "hola", translation: "olá" }, { source: "gracias", translation: "obrigado" }, { source: "agua", translation: "água" }, { source: "casa", translation: "casa" }, { source: "amigo", translation: "amigo" }],
-    advanced: [{ source: "necesito ayuda", translation: "preciso de ajuda" }, { source: "¿dónde está la estación?", translation: "onde fica a estação?" }, { source: "me gusta aprender", translation: "gosto de aprender" }, { source: "llego mañana", translation: "chego amanhã" }, { source: "¿cuánto cuesta?", translation: "quanto custa?" }],
-  },
-  fr: {
-    A1: [{ source: "hola", translation: "bonjour" }, { source: "gracias", translation: "merci" }, { source: "agua", translation: "eau" }, { source: "casa", translation: "maison" }, { source: "amigo", translation: "ami" }],
-    advanced: [{ source: "necesito ayuda", translation: "j'ai besoin d'aide" }, { source: "¿dónde está la estación?", translation: "où est la gare ?" }, { source: "me gusta aprender", translation: "j'aime apprendre" }, { source: "llego mañana", translation: "j'arrive demain" }, { source: "¿cuánto cuesta?", translation: "combien ça coûte ?" }],
-  },
-  de: {
-    A1: [{ source: "hola", translation: "hallo" }, { source: "gracias", translation: "danke" }, { source: "agua", translation: "Wasser" }, { source: "casa", translation: "Haus" }, { source: "amigo", translation: "Freund" }],
-    advanced: [{ source: "necesito ayuda", translation: "Ich brauche Hilfe" }, { source: "¿dónde está la estación?", translation: "Wo ist der Bahnhof?" }, { source: "me gusta aprender", translation: "Ich lerne gern" }, { source: "llego mañana", translation: "Ich komme morgen an" }, { source: "¿cuánto cuesta?", translation: "Wie viel kostet das?" }],
-  },
-  it: {
-    A1: [{ source: "hola", translation: "ciao" }, { source: "gracias", translation: "grazie" }, { source: "agua", translation: "acqua" }, { source: "casa", translation: "casa" }, { source: "amigo", translation: "amico" }],
-    advanced: [{ source: "necesito ayuda", translation: "ho bisogno di aiuto" }, { source: "¿dónde está la estación?", translation: "dov'è la stazione?" }, { source: "me gusta aprender", translation: "mi piace imparare" }, { source: "llego mañana", translation: "arrivo domani" }, { source: "¿cuánto cuesta?", translation: "quanto costa?" }],
-  },
-};
-
-function questionsFor(language: string, level: string, lessonOrder: number) {
-  const languageVocabulary = VOCABULARY[language] ?? VOCABULARY.en;
-  const vocabulary = languageVocabulary[level === "A1" ? "A1" : "advanced"];
-  const offset = Math.max(0, lessonOrder - 1) % vocabulary.length;
-  return vocabulary.map((_, index) => vocabulary[(index + offset) % vocabulary.length]);
-}
-
 function optionsFor(question: Vocabulary, vocabulary: Vocabulary[], index: number) {
   const distractors = vocabulary
     .filter((item) => item.translation !== question.translation)
@@ -87,8 +53,8 @@ function Leccion({ user }: { user: { id: string } }) {
 
   if (lesson.isLoading) return <p>Cargando lección...</p>;
   if (lesson.isError || !lesson.data) return <p>No se pudo cargar la lección.</p>;
-  const questions = questionsFor(lesson.data.idioma_codigo, lesson.data.curso_nivel, lesson.data.orden);
-  const vocabulary = (VOCABULARY[lesson.data.idioma_codigo] ?? VOCABULARY.en)[lesson.data.curso_nivel === "A1" ? "A1" : "advanced"];
+  const vocabulary = lesson.data.vocabulario.map((word) => ({ source: word.fuente, translation: word.traduccion }));
+  const questions = vocabulary;
   const question = questions[questionIndex];
   const options = optionsFor(question, vocabulary, questionIndex);
   const isCorrect = selected === question.translation;

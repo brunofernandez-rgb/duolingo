@@ -1,4 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class LeccionVocabularioDTO(BaseModel):
+    emoji: str
+    fuente: str
+    traduccion: str
 
 
 class CreateLeccionDTO(BaseModel):  # POST
@@ -33,5 +39,6 @@ class LeccionResponseDTO(BaseModel):
     idioma_id: int
     idioma_nombre: str
     idioma_codigo: str
+    vocabulario: list[LeccionVocabularioDTO] = Field(default_factory=list)
 
     model_config = {"from_attributes": True}
