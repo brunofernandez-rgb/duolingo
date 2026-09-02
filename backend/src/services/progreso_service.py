@@ -7,10 +7,12 @@ from src.repositories.leccion_repository import LeccionRepository
 from src.repositories.progreso_repository import ProgresoRepository
 from src.repositories.usuario_cursos_repository import UsuarioCursosRepository
 from src.repositories.usuario_repository import UsuariosRepository
+from src.services.evaluador_insignias_service import EvaluadorInsigniasService
 
 
 class ProgresoService:
     def __init__(self, db: Session):
+        self.db = db
         self.repo = ProgresoRepository(db)
         self.leccion_repo = LeccionRepository(db)
         self.usuario_repo = UsuariosRepository(db)
@@ -45,6 +47,7 @@ class ProgresoService:
                 usuario.racha_dias = 1
             usuario.fecha_ultima_actividad = ahora
             self.usuario_repo.update(usuario)
+            EvaluadorInsigniasService(self.db).otorgar_cumplidas(usuario)
 
         res = self.repo.get_by_id_with_leccion_curso(progreso.id)
         return to_progreso_response(res[0], res[1], res[2])
