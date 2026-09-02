@@ -3,14 +3,19 @@ from sqlalchemy.orm import Session
 from src.dtos.usuario_cursos_dto import CreateUsuarioCursosDTO, UsuarioCursosResponseDTO
 from src.mappers.usuario_cursos_mapper import to_usuario_cursos_response
 from src.repositories.usuario_cursos_repository import UsuarioCursosRepository
+from src.repositories.curso_repository import CursoRepository
 
 
 class UsuarioCursosService:
     def __init__(self, db: Session):
         self.repo = UsuarioCursosRepository(db)
+        self.curso_repo = CursoRepository(db)
 
     def create(self, dto: CreateUsuarioCursosDTO) -> UsuarioCursosResponseDTO | None:
         if self.repo.get_by_id(dto.usuario_id, dto.curso_id):
+            return None
+        curso = self.curso_repo.get_by_id(dto.curso_id)
+        if not curso or self.repo.get_by_usuario_id_and_idioma(dto.usuario_id, curso.idioma_id):
             return None
         self.repo.create(dto.usuario_id, dto.curso_id)
         res = self.repo.get_by_id_with_curso_idioma(dto.usuario_id, dto.curso_id)

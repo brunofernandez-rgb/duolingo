@@ -33,6 +33,7 @@ export interface ApiLeccion {
   idioma_id: number;
   idioma_nombre: string;
   idioma_codigo: string;
+  vocabulario: { emoji: string; fuente: string; traduccion: string }[];
 }
 
 export interface ApiInscripcion {
@@ -149,11 +150,18 @@ export const api = {
   leccion: (id: number) => request<ApiLeccion>(`/lecciones/${id}`),
   progresoCurso: (usuarioId: number, cursoId: number) =>
     request<ApiProgresoCurso>(`/progresos/usuarios/${usuarioId}/cursos/${cursoId}`),
-  intento: (usuarioId: number, leccionId: number, puntaje: number) =>
-    request(`/progresos/intentos`, {
+  intento: (usuarioId: number, leccionId: number, puntaje: number) => {
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0 || !Number.isInteger(leccionId) || leccionId <= 0) {
+      throw new ApiError("Sesión o lección inválida. Iniciá sesión nuevamente.", 400);
+    }
+    const puntajeNormalizado = Number.isFinite(puntaje)
+      ? Math.min(100, Math.max(0, Math.round(puntaje)))
+      : 0;
+    return request("/progresos/intentos", {
       method: "POST",
-      body: JSON.stringify({ usuario_id: usuarioId, leccion_id: leccionId, puntaje, completada: puntaje >= 60 }),
-    }),
+      body: JSON.stringify({ usuario_id: usuarioId, leccion_id: leccionId, puntaje: puntajeNormalizado }),
+    });
+  },
   ranking: (periodo: "global" | "semanal" | "mensual") =>
     request<ApiRankingUser[]>(`/usuarios/ranking?periodo=${periodo}`),
   amigos: (usuarioId: number) => request<ApiAmigo[]>(`/usuarios/${usuarioId}/amigos`),
