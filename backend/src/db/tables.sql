@@ -199,6 +199,16 @@ WHERE NOT EXISTS (
     WHERE leccion.curso_id = curso.id AND leccion.orden = lecciones.orden
 );
 
+INSERT INTO insignia (nombre, descripcion, criterio)
+SELECT idioma.nombre || ' C1 completado',
+       'Completá todas las lecciones del nivel C1 de ' || idioma.nombre,
+       'curso_completado:' || idioma.codigo || ':C1'
+FROM idioma
+WHERE NOT EXISTS (
+    SELECT 1 FROM insignia
+    WHERE insignia.criterio = 'curso_completado:' || idioma.codigo || ':C1'
+);
+
 DELETE FROM leccion_vocabulario;
 
 INSERT INTO leccion_vocabulario (leccion_id, emoji, fuente, traduccion_en, traduccion_fr, traduccion_de, traduccion_it, traduccion_pt)

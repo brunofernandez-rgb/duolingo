@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.db.models.insignia_model import Insignia
+from src.db.models.idioma_model import Idioma
 
 
 INSIGNIAS_PREDETERMINADAS = (
@@ -32,6 +33,19 @@ def seed_insignias(db: Session) -> None:
         for datos in INSIGNIAS_PREDETERMINADAS
         if datos["criterio"] not in criterios_existentes
     ]
-    if nuevas:
-        db.add_all(nuevas)
+    db.add_all(nuevas)
+    db.flush()
+    criterios_existentes.update(insignia.criterio for insignia in nuevas)
+    idiomas = db.query(Idioma).all()
+    insignias_idioma = [
+        Insignia(
+            nombre=f"{idioma.nombre} C1 completado",
+            descripcion=f"Completá todas las lecciones del nivel C1 de {idioma.nombre}",
+            criterio=f"curso_completado:{idioma.codigo}:C1",
+        )
+        for idioma in idiomas
+        if f"curso_completado:{idioma.codigo}:C1" not in criterios_existentes
+    ]
+    db.add_all(insignias_idioma)
+    if nuevas or insignias_idioma:
         db.commit()

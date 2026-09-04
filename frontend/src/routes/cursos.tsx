@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { RequireAuth } from "@/components/duo/RequireAuth";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { useT } from "@/lib/useT";
-import { api } from "@/lib/api";
+import { api, type ApiProgresoCurso } from "@/lib/api";
 
 const BANDERAS: Record<string, string> = {
   es: "https://flagcdn.com/w80/ar.png",
@@ -73,6 +73,16 @@ function Cursos({ user }: { user: { id: string } }) {
   if (cursosQuery.isError || idiomasQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los cursos.</p>;
   const cursos = cursosQuery.data ?? [];
   const inscripciones = new Set((inscripcionesQuery.data ?? []).map((item) => item.curso_id));
+  const progresoPorCurso = new Map(
+    progresoQueries
+      .map((query) => query.data)
+      .filter((progreso): progreso is ApiProgresoCurso => Boolean(progreso))
+      .map((progreso) => [progreso.curso_id, progreso]),
+  );
+  const cursosCompletados = cursos.filter((curso) => {
+    const progreso = progresoPorCurso.get(curso.id);
+    return inscripciones.has(curso.id) && progreso && progreso.total_lecciones > 0 && progreso.completadas >= progreso.total_lecciones;
+  });
 
   return (
     <div className="space-y-8">
@@ -81,6 +91,7 @@ function Cursos({ user }: { user: { id: string } }) {
       {(idiomasQuery.data ?? []).map((idioma) => {
         const cursosIdioma = cursos.filter(
             (curso) => inscripciones.has(curso.id) &&
+              !cursosCompletados.some((completado) => completado.id === curso.id) &&
               curso.idioma_codigo === idioma.codigo &&
             (!idiomaSeleccionado || curso.idioma_codigo === idiomaSeleccionado),
         );
@@ -108,9 +119,7 @@ function Cursos({ user }: { user: { id: string } }) {
                           </p>
                           <p className="text-sm font-bold text-muted-foreground">
                             {(() => {
-                              const progresoCurso = progresoQueries
-                                .map((query) => query.data)
-                                .find((item) => item?.curso_id === curso.id);
+                              const progresoCurso = progresoPorCurso.get(curso.id);
                               return progresoCurso ? `${progresoCurso.completadas}/${progresoCurso.total_lecciones} ${t("course.lessons")}` : t("course.lessons");
                             })()}
                           </p>
@@ -162,6 +171,22 @@ function Cursos({ user }: { user: { id: string } }) {
           </section>
         );
       })}
+      {cursosCompletados.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-xl font-extrabold">Cursos completados</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cursosCompletados.map((curso) => (
+              <article key={curso.id} className="flex items-center justify-between rounded-2xl border-2 border-success bg-success-soft p-4">
+                <div>
+                  <p className="font-extrabold">{curso.idioma_nombre} · {curso.nivel}</p>
+                  <p className="text-sm font-bold text-success">{progresoPorCurso.get(curso.id)?.completadas}/{progresoPorCurso.get(curso.id)?.total_lecciones} {t("course.lessons")}</p>
+                </div>
+                <span className="font-extrabold text-success">Completado</span>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
