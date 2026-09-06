@@ -5,6 +5,7 @@ from src.db.connection import get_db
 from src.dtos.curso_dto import CreateCursoDTO, CursoResponseDTO
 from src.schemas.curso_schema import CreateCursoSchema
 from src.services.curso_service import CursoService
+from src.middlewares.admin_middleware import get_admin_user
 
 router = APIRouter(prefix="/cursos", tags=["cursos"])
 
@@ -15,7 +16,7 @@ def list_cursos(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=CursoResponseDTO, status_code=status.HTTP_201_CREATED)
-def create_curso(payload: CreateCursoSchema, db: Session = Depends(get_db)):
+def create_curso(payload: CreateCursoSchema, db: Session = Depends(get_db), _admin=Depends(get_admin_user)):
     result = CursoService(db).create(CreateCursoDTO(**payload.model_dump()))
     if result is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No se pudo crear el curso")

@@ -1,4 +1,5 @@
-from datetime import datetime
+from collections import defaultdict
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import distinct, func
 from sqlalchemy.orm import Session
@@ -60,6 +61,10 @@ class ProgresoRepository:
         proxima = next((leccion.id for leccion in lecciones if leccion.id not in completadas), None)
         return len(lecciones), lecciones_completadas, proxima
 
+    def curso_completado(self, usuario_id: int, curso_id: int) -> bool:
+        total, completadas, _ = self.get_progreso_curso_join(usuario_id, curso_id)
+        return total > 0 and completadas >= total
+
     def get_by_id_with_leccion_curso(self, progreso_id: int):
         return (
             self.db.query(Progreso, Leccion, Curso)
@@ -91,6 +96,36 @@ class ProgresoRepository:
             .scalar()
             or 0
         )
+
+    def get_actividad_por_rango(self, usuario_id: int, desde: date, hasta: date) -> list[dict]:
+        progresos = (
+            self.db.query(Progreso.fecha, Progreso.leccion_id, Leccion.xp_recompensa)
+            .join(Leccion, Progreso.leccion_id == Leccion.id)
+            .filter(
+                Progreso.usuario_id == usuario_id,
+                Progreso.completada.is_(True),
+                Progreso.fecha >= datetime.combine(desde, datetime.min.time()),
+                Progreso.fecha < datetime.combine(hasta + timedelta(days=1), datetime.min.time()),
+            )
+            .all()
+        )
+        actividad: dict[date, dict[str, object]] = defaultdict(lambda: {"xp": 0, "lecciones": set()})
+        for fecha, leccion_id, xp_recompensa in progresos:
+            dia = fecha.date()
+            actividad[dia]["xp"] = int(actividad[dia]["xp"]) + xp_recompensa
+            actividad[dia]["lecciones"].add(leccion_id)
+
+        resultado: list[dict] = []
+        dia = desde
+        while dia <= hasta:
+            datos = actividad[dia]
+            resultado.append({
+                "fecha": dia,
+                "xp": datos["xp"],
+                "lecciones_completadas": len(datos["lecciones"]),
+            })
+            dia += timedelta(days=1)
+        return resultado
 
     def update(self, progreso: Progreso) -> Progreso:
         self.db.add(progreso)

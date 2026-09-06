@@ -21,6 +21,9 @@ class CursoRepository:
     def get_by_id(self, curso_id: int) -> Curso | None:
         return self.db.query(Curso).filter(Curso.id == curso_id).first()
 
+    def idioma_exists(self, idioma_id: int) -> bool:
+        return self.db.query(Idioma).filter(Idioma.id == idioma_id).first() is not None
+
     def get_by_id_with_idioma(self, curso_id: int):
         return (
             self.db.query(Curso, Idioma)

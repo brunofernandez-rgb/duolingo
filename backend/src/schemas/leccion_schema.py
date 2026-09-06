@@ -3,9 +3,9 @@ from pydantic import BaseModel, Field
 
 class CreateLeccionSchema(BaseModel):
     curso_id: int
-    orden: int = Field(ge=0)
+    orden: int = Field(ge=1)
     titulo: str = Field(max_length=150)
-    xp_recompensa: int = Field(default=0, ge=0)
+    xp_recompensa: int = Field(default=0, ge=5, le=50)
 
 
 class UpdateLeccionSchema(BaseModel):

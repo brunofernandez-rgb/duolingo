@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Globe } from "lucide-react";
 import { toast } from "sonner";
@@ -43,11 +43,26 @@ function Aprender({ user }: { user: { id: string } }) {
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "No se pudo completar la inscripción"),
   });
+  const progresoQueries = useQueries({
+    queries: (inscripcionesQuery.data ?? []).map((inscripcion) => ({
+      queryKey: ["progreso", userId, inscripcion.curso_id],
+      queryFn: () => api.progresoCurso(userId, inscripcion.curso_id),
+    })),
+  });
 
   if (idiomasQuery.isLoading || cursosQuery.isLoading || inscripcionesQuery.isLoading) return <p>Cargando idiomas...</p>;
   if (idiomasQuery.isError || cursosQuery.isError || inscripcionesQuery.isError) return <p>No se pudieron cargar los idiomas.</p>;
   const inscripciones = new Set((inscripcionesQuery.data ?? []).map((item) => item.curso_id));
-  const idiomasInscritos = new Set((inscripcionesQuery.data ?? []).map((item) => item.idioma_codigo));
+  const cursosCompletados = new Set(
+    progresoQueries
+      .filter((query) => query.data && query.data.total_lecciones > 0 && query.data.completadas >= query.data.total_lecciones)
+      .map((query) => query.data!.curso_id),
+  );
+  const idiomasActivos = new Set(
+    (inscripcionesQuery.data ?? [])
+      .filter((inscripcion) => !cursosCompletados.has(inscripcion.curso_id))
+      .map((inscripcion) => inscripcion.idioma_codigo),
+  );
 
   return (
     <div className="space-y-8">
@@ -89,16 +104,23 @@ function Aprender({ user }: { user: { id: string } }) {
                   toast.error("Este idioma todavía no tiene cursos disponibles");
                   return;
                 }
-                if (idiomasInscritos.has(idioma.codigo)) {
-                  const inscripcion = inscripcionesQuery.data?.find((item) => item.idioma_codigo === idioma.codigo);
-                  toast.info(`Ya estás inscrito en ${idioma.nombre} nivel ${inscripcion?.curso_nivel ?? "otro nivel"}`);
+                if (inscripciones.has(curso.id)) {
+                  toast.info(cursosCompletados.has(curso.id) ? `Ya completaste ${idioma.nombre} nivel ${nivel}` : `Ya estás inscrito en ${idioma.nombre} nivel ${nivel}`);
+                  return;
+                }
+                if (idiomasActivos.has(idioma.codigo)) {
+                  toast.info(`Ya estás inscrito en otro nivel activo de ${idioma.nombre}`);
                   return;
                 }
                 inscribirMutation.mutate(curso.id);
               }}
             >
-              {idiomasInscritos.has(idioma.codigo)
-                ? "Ya estás inscrito"
+              {cursosCompletados.has(cursosQuery.data?.find((item) => item.idioma_codigo === idioma.codigo && item.nivel === (niveles[idioma.codigo] ?? "A1"))?.id ?? -1)
+                ? "Ya completado"
+                : inscripciones.has(cursosQuery.data?.find((item) => item.idioma_codigo === idioma.codigo && item.nivel === (niveles[idioma.codigo] ?? "A1"))?.id ?? -1)
+                  ? "Ya estás inscrito"
+                : idiomasActivos.has(idioma.codigo)
+                  ? "Otro nivel activo"
                 : t("course.enroll")}
             </DuoButton>
           </article>

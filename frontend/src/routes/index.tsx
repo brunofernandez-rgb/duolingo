@@ -8,6 +8,7 @@ import { useT } from "@/lib/useT";
 import { IDIOMAS } from "@/data/content";
 import { useDB, usuarioActual } from "@/lib/store";
 import { api } from "@/lib/api";
+import { ActivityHeatmap } from "@/components/duo/ActivityHeatmap";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -112,9 +113,17 @@ function Dashboard({ userId }: { userId: number }) {
     queryKey: ["ranking", "semanal"],
     queryFn: () => api.ranking("semanal"),
   });
+  const hasta = new Date();
+  const desde = new Date(hasta);
+  desde.setDate(desde.getDate() - 29);
+  const formatDate = (date: Date) => date.toISOString().slice(0, 10);
+  const actividad = useQuery({
+    queryKey: ["actividad", userId, formatDate(desde), formatDate(hasta)],
+    queryFn: () => api.actividad(userId, formatDate(desde), formatDate(hasta)),
+  });
 
-  if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading) return <p>Cargando tu inicio...</p>;
-  if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError) return <p>No se pudo cargar tu inicio.</p>;
+  if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading || actividad.isLoading) return <p>Cargando tu inicio...</p>;
+  if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError || actividad.isError) return <p>No se pudo cargar tu inicio.</p>;
 
   return (
     <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_18rem] md:items-start">
@@ -140,6 +149,7 @@ function Dashboard({ userId }: { userId: number }) {
             </Link>
           </div>
         )}
+        {actividad.data && <ActivityHeatmap data={actividad.data} lang={lang} />}
         </section>
       </div>
       <div className="space-y-5">

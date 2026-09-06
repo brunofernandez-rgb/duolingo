@@ -59,6 +59,12 @@ export interface ApiProgresoCurso {
   proxima_leccion_id: number | null;
 }
 
+export interface ApiActividadDiaria {
+  fecha: string;
+  xp: number;
+  lecciones_completadas: number;
+}
+
 export interface ApiRankingUser extends ApiUsuario {}
 
 export interface ApiAmigo {
@@ -169,6 +175,8 @@ export const api = {
   leccion: (id: number) => request<ApiLeccion>(`/lecciones/${id}`),
   progresoCurso: (usuarioId: number, cursoId: number) =>
     request<ApiProgresoCurso>(`/usuarios/${usuarioId}/cursos/${cursoId}/progreso`),
+  actividad: (usuarioId: number, desde: string, hasta: string) =>
+    request<ApiActividadDiaria[]>(`/progresos/usuarios/${usuarioId}/actividad?desde=${desde}&hasta=${hasta}`),
   intento: (usuarioId: number, leccionId: number, puntaje: number) => {
     if (!Number.isInteger(usuarioId) || usuarioId <= 0 || !Number.isInteger(leccionId) || leccionId <= 0) {
       throw new ApiError("Sesión o lección inválida. Iniciá sesión nuevamente.", 400);

@@ -12,6 +12,8 @@ class CursoService:
     def create(self, dto: CreateCursoDTO) -> CursoResponseDTO | None:
         if dto.nivel not in ["A1", "A2", "B1", "B2", "C1"]:
             return None
+        if not self.curso_repo.idioma_exists(dto.idioma_id):
+            return None
         curso = self.repo.create(dto.idioma_id, dto.nivel)
         curso_model, idioma_model = self.repo.get_by_id_with_idioma(curso.id)
         return to_curso_response(curso_model, idioma_model)

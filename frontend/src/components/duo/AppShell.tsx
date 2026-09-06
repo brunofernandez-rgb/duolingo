@@ -11,6 +11,7 @@ import {
   LogOut,
   Globe,
   Home,
+  CalendarDays,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Penguin } from "./Penguin";
@@ -34,6 +35,7 @@ const NAV = [
   { to: "/ranking-amigos", key: "nav.friendsRanking", icon: Trophy },
   { to: "/amigos", key: "nav.friends", icon: Users },
   { to: "/insignias", key: "nav.badges", icon: Award },
+  { to: "/actividad", key: "nav.activity", icon: CalendarDays },
   { to: "/perfil", key: "nav.profile", icon: User },
 ] as const;
 
