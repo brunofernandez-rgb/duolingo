@@ -19,7 +19,13 @@ class LeccionService:
         if self.repo.get_by_curso_y_orden(dto.curso_id, dto.orden):
             return None
 
-        leccion = self.repo.create(dto.curso_id, dto.orden, dto.titulo, dto.xp_recompensa)
+        leccion = self.repo.create(
+            dto.curso_id,
+            dto.orden,
+            dto.titulo,
+            dto.xp_recompensa,
+            [palabra.model_dump() for palabra in dto.vocabulario],
+        )
         res = self.repo.get_by_id_with_curso_idioma(leccion.id)
         return to_leccion_response(res[0], res[1], res[2])
 

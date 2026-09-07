@@ -10,9 +10,12 @@ class IdiomaService:
         self.repo = IdiomaRepository(db)
 
     def create(self, dto: CreateIdiomaDTO) -> IdiomaResponseDTO | None:
-        if self.repo.get_by_codigo(dto.codigo):
+        nombre = dto.nombre.strip()
+        codigo = dto.codigo.strip().lower()
+        if not nombre or not codigo or self.repo.get_by_codigo(codigo):
             return None
-        return to_idioma_response(self.repo.create(dto.nombre, dto.codigo))
+        bandera_url = dto.bandera_url.strip() if dto.bandera_url else None
+        return to_idioma_response(self.repo.create(nombre, codigo, bandera_url))
 
     def get_by_id(self, idioma_id: int) -> IdiomaResponseDTO | None:
         res = self.repo.get_by_id(idioma_id)

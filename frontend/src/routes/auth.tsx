@@ -3,7 +3,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Penguin } from "@/components/duo/Penguin";
 import { DuoButton } from "@/components/duo/DuoButton";
-import { LanguagePicker } from "@/components/duo/AppShell";
 import { useT } from "@/lib/useT";
 import { setRemoteSession } from "@/lib/store";
 import { api, usuarioIdDesdeToken } from "@/lib/api";
@@ -65,7 +64,6 @@ function AuthPage() {
         <Link to="/" className="flex items-center gap-2 text-xl font-extrabold text-primary">
           <Penguin className="h-9 w-9" /> {t("app.name")}
         </Link>
-        <LanguagePicker />
       </header>
 
       <main className="mx-auto w-full max-w-md px-4 py-8">

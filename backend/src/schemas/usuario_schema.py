@@ -32,5 +32,9 @@ class ChangePasswordSchema(BaseModel):
     password_nueva: str = Field(min_length=8)
 
 
+class ChangeUsernameSchema(BaseModel):
+    nombre: str = Field(min_length=1, max_length=100)
+
+
 class GetUsuarioSchema(BaseModel):
     id: int

@@ -12,6 +12,7 @@ import {
   Globe,
   Home,
   CalendarDays,
+  Shield,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Penguin } from "./Penguin";
@@ -38,6 +39,9 @@ const NAV = [
   { to: "/actividad", key: "nav.activity", icon: CalendarDays },
   { to: "/perfil", key: "nav.profile", icon: User },
 ] as const;
+
+const ADMIN_NAV = { to: "/admin", key: "nav.admin", icon: Shield } as const;
+const ADMIN_EMAIL = "admin@gmail.com";
 
 export function LanguagePicker() {
   const { t, lang } = useT();
@@ -75,6 +79,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     enabled: Boolean(user),
   });
   const currentUser = userQuery.data ?? user;
+  const isAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL;
+  const navItems = isAdmin ? [...NAV.filter((item) => item.to !== "/amigos" && item.to !== "/ranking-amigos"), ADMIN_NAV] : NAV;
+  const mobileNavItems = isAdmin ? [...NAV.filter((item) => item.to !== "/amigos" && item.to !== "/ranking-amigos").slice(0, 5), ADMIN_NAV] : NAV.slice(0, 6);
   const { t } = useT();
   const navigate = useNavigate();
 
@@ -99,7 +106,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             </div>
           )}
-          <LanguagePicker />
           {currentUser && (
             <button
               onClick={() => {
@@ -118,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="mx-auto flex max-w-6xl gap-6 px-4 pb-24 pt-6 md:pb-10">
         <nav className="hidden w-56 shrink-0 md:block">
           <ul className="sticky top-24 space-y-1">
-            {NAV.map((item) => (
+            {navItems.map((item) => (
               <li key={item.to}>
                 <Link
                   to={item.to}
@@ -141,7 +147,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-border bg-background md:hidden">
         <ul className="flex items-center justify-around px-1 py-2">
-          {NAV.slice(0, 6).map((item) => (
+          {mobileNavItems.map((item) => (
             <li key={item.to}>
               <Link
                 to={item.to}

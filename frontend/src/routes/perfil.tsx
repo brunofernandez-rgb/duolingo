@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Eye, EyeOff, Flame, KeyRound, Trash2, Zap } from "lucide-react";
+import { Eye, EyeOff, Flame, KeyRound, Trash2, UserRound, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/duo/RequireAuth";
@@ -19,8 +19,10 @@ function Perfil({ user }: { user: { id: string } }) {
   const query = useQuery({ queryKey: ["usuario", user.id], queryFn: () => api.usuario(Number(user.id)) });
   const [passwordActual, setPasswordActual] = useState("");
   const [passwordNueva, setPasswordNueva] = useState("");
+  const [nombre, setNombre] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [changingName, setChangingName] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   if (query.isLoading) return <p>{t("profile.loading")}</p>;
@@ -41,6 +43,22 @@ function Perfil({ user }: { user: { id: string } }) {
       toast.error(error instanceof Error ? error.message : t("profile.passwordIncorrect"));
     } finally {
       setChangingPassword(false);
+    }
+  }
+
+  async function changeName() {
+    const nuevoNombre = nombre.trim();
+    if (!nuevoNombre || nuevoNombre === query.data?.nombre) return;
+    setChangingName(true);
+    try {
+      await api.cambiarNombre(Number(user.id), nuevoNombre);
+      setNombre("");
+      await query.refetch();
+      toast.success(t("profile.usernameUpdated"));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("profile.usernameTaken"));
+    } finally {
+      setChangingName(false);
     }
   }
 
@@ -72,6 +90,11 @@ function Perfil({ user }: { user: { id: string } }) {
             <div className="rounded-2xl border-2 border-border bg-card p-5"><Flame className="text-streak" /><p className="mt-2 text-2xl font-extrabold">{query.data.racha_dias}</p><p className="font-bold text-muted-foreground">{t("streak.days")}</p></div>
           </div>
           <section className="space-y-3 rounded-2xl border-2 border-border bg-card p-5">
+            <h2 className="flex items-center gap-2 text-lg font-extrabold"><UserRound className="h-5 w-5" /> {t("profile.changeUsername")}</h2>
+            <input value={nombre || query.data.nombre} onChange={(event) => setNombre(event.target.value)} placeholder={t("profile.usernamePlaceholder")} className={inputClass} maxLength={100} />
+            <DuoButton block onClick={changeName} disabled={!nombre.trim() || nombre.trim() === query.data.nombre || changingName}>{t("profile.changeUsername")}</DuoButton>
+          </section>
+          <section className="space-y-3 rounded-2xl border-2 border-border bg-card p-5">
             <h2 className="flex items-center gap-2 text-lg font-extrabold"><KeyRound className="h-5 w-5" /> {t("common.changePassword")}</h2>
             <input type={showPasswords ? "text" : "password"} value={passwordActual} onChange={(event) => setPasswordActual(event.target.value)} placeholder={t("profile.passwordPlaceholder")} className={inputClass} autoComplete="current-password" />
             <input type={showPasswords ? "text" : "password"} value={passwordNueva} onChange={(event) => setPasswordNueva(event.target.value)} placeholder={t("common.changePassword")} className={inputClass} minLength={8} autoComplete="new-password" />
@@ -85,9 +108,9 @@ function Perfil({ user }: { user: { id: string } }) {
         </div>
         <aside className="flex min-h-96 flex-col items-center justify-start lg:relative lg:min-h-0">
           <Penguin className="h-[28rem] w-full max-w-md lg:absolute lg:-top-20" float priority />
-          <DuoButton variant="danger" block className="mt-2 max-w-xs lg:absolute lg:bottom-5" onClick={deleteAccount} disabled={deleting}>
+          {query.data.email.toLowerCase() !== "admin@gmail.com" && <DuoButton variant="danger" block className="mt-2 max-w-xs lg:absolute lg:bottom-5" onClick={deleteAccount} disabled={deleting}>
             <Trash2 className="h-4 w-4" /> {t("profile.delete")}
-          </DuoButton>
+          </DuoButton>}
         </aside>
       </div>
     </div>

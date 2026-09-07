@@ -42,6 +42,6 @@ def get_curso(curso_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{curso_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_curso(curso_id: int, db: Session = Depends(get_db)):
+def delete_curso(curso_id: int, db: Session = Depends(get_db), _admin=Depends(get_admin_user)):
     if not CursoService(db).delete(curso_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Curso no encontrado")

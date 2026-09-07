@@ -9,3 +9,4 @@ class Idioma(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String(50), nullable=False)
     codigo = Column(String(10), unique=True, nullable=False)
+    bandera_url = Column(String(255), nullable=True)

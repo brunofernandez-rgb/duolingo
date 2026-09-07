@@ -1,5 +1,5 @@
 from datetime import date, datetime, time, timedelta
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from src.db.models.leccion_model import Leccion
 from src.db.models.progreso_model import Progreso
@@ -33,6 +33,9 @@ class UsuariosRepository:
 
     def get_by_email(self, email: str) -> Usuario | None:
         return self.db.query(Usuario).filter(Usuario.email == email).first()
+
+    def get_by_nombre(self, nombre: str) -> Usuario | None:
+        return self.db.query(Usuario).filter(func.lower(Usuario.nombre) == nombre.lower()).first()
 
     def reset_rachas_vencidas(self, hoy: date | None = None) -> int:
         """Pone en cero las rachas cuyo último día activo no fue hoy ni ayer."""

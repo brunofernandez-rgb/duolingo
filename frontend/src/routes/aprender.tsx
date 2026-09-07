@@ -78,7 +78,7 @@ function Aprender({ user }: { user: { id: string } }) {
         {(idiomasQuery.data ?? []).map((idioma) => (
           <article key={idioma.id} className="rounded-3xl border-2 border-b-4 border-border bg-card p-5">
             <div className="flex items-center gap-4">
-              <img className="h-10 w-14 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />
+              <img className="h-10 w-14 rounded object-cover" src={idioma.bandera_url ?? BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />
               <div>
                 <h2 className="text-xl font-extrabold">{languageName(lang, idioma.codigo, idioma.nombre)}</h2>
               </div>

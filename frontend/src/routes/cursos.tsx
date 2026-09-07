@@ -100,7 +100,7 @@ function Cursos({ user }: { user: { id: string } }) {
         return (
           <section key={idioma.id} className="space-y-3">
             <h2 className="flex items-center gap-2 text-lg font-extrabold">
-              <img className="h-6 w-9 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} /> {languageName(lang, idioma.codigo, idioma.nombre)}
+              <img className="h-6 w-9 rounded object-cover" src={idioma.bandera_url ?? BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} /> {languageName(lang, idioma.codigo, idioma.nombre)}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {cursosIdioma
@@ -125,7 +125,7 @@ function Cursos({ user }: { user: { id: string } }) {
                             })()}
                           </p>
                         </div>
-                        <img className="h-8 w-12 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />
+                        <img className="h-8 w-12 rounded object-cover" src={idioma.bandera_url ?? BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />
                       </div>
 
                       <div className="mt-4">

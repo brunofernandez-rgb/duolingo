@@ -5,6 +5,8 @@ from src.mappers.amigos_mapper import to_amigos_response
 from src.repositories.amigos_repository import AmigosRepository
 from src.repositories.usuario_repository import UsuariosRepository
 
+ADMIN_EMAIL = "admin@gmail.com"
+
 
 class AmigosService:
     def __init__(self, db: Session):
@@ -14,6 +16,10 @@ class AmigosService:
     def create(self, dto: CreateAmigosDTO) -> AmigosResponseDTO | None:
         if dto.usuario_a == dto.usuario_b:
             return None
+        usuario_a = self.usuario_repo.get_by_id(dto.usuario_a)
+        usuario_b = self.usuario_repo.get_by_id(dto.usuario_b)
+        if not usuario_a or not usuario_b or usuario_a.email.lower() == ADMIN_EMAIL or usuario_b.email.lower() == ADMIN_EMAIL:
+            return None
         if self.repo.get_by_id(dto.usuario_a, dto.usuario_b) or self.repo.get_by_id(dto.usuario_b, dto.usuario_a):
             return None
         self.repo.create(dto.usuario_a, dto.usuario_b)
@@ -22,15 +28,18 @@ class AmigosService:
 
     def get_amigos(self, usuario_id: int) -> list[AmigosResponseDTO]:
         self.usuario_repo.reset_rachas_vencidas()
+        usuario = self.usuario_repo.get_by_id(usuario_id)
+        if not usuario or usuario.email.lower() == ADMIN_EMAIL:
+            return []
         resultados = self.repo.get_amigos_join_usuario(usuario_id)
-        return [to_amigos_response(amigo, usuario) for amigo, usuario in resultados]
+        return [to_amigos_response(amigo, usuario) for amigo, usuario in resultados if usuario.email.lower() != ADMIN_EMAIL]
 
     def get_ranking_amigos(self, usuario_id: int) -> list[RankingAmigosItemDTO]:
         self.usuario_repo.reset_rachas_vencidas()
         usuario = self.usuario_repo.get_by_id(usuario_id)
-        if not usuario:
+        if not usuario or usuario.email.lower() == ADMIN_EMAIL:
             return []
-        participantes = [usuario] + [usuario_amigo for _, usuario_amigo in self.repo.get_ranking_amigos_join(usuario_id)]
+        participantes = [usuario] + [usuario_amigo for _, usuario_amigo in self.repo.get_ranking_amigos_join(usuario_id) if usuario_amigo.email.lower() != ADMIN_EMAIL]
         participantes.sort(key=lambda item: (-item.xp_total, -item.racha_dias, item.id))
         return [
             RankingAmigosItemDTO(

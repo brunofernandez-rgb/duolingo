@@ -19,12 +19,24 @@ from src.routers import (
     solicitud_amistad_router,
 )
 from src.utils.errors import AppError
+from sqlalchemy import inspect, text
+
 from src.db.connection import Base, SessionLocal, engine
 from src.db.models.leccion_model import Leccion
-from src.db.seed import seed_contenido_por_nivel, seed_insignias, seed_lenguaje_tecnico
+from src.db.seed import (
+    remove_contenido_predeterminado_de_idiomas_personalizados,
+    seed_contenido_por_nivel,
+    seed_insignias,
+    seed_lenguaje_tecnico,
+)
 
 Base.metadata.create_all(bind=engine)
+with engine.begin() as connection:
+    columnas_idioma = {column["name"] for column in inspect(connection).get_columns("idioma")}
+    if "bandera_url" not in columnas_idioma:
+        connection.execute(text("ALTER TABLE idioma ADD COLUMN bandera_url VARCHAR(255)"))
 with SessionLocal() as db:
+    remove_contenido_predeterminado_de_idiomas_personalizados(db)
     seed_contenido_por_nivel(db)
     seed_insignias(db)
     seed_lenguaje_tecnico(db)

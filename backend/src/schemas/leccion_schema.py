@@ -1,11 +1,17 @@
 from pydantic import BaseModel, Field
 
 
+class CreateLeccionVocabularioSchema(BaseModel):
+    fuente: str = Field(min_length=1, max_length=255)
+    traduccion: str = Field(min_length=1, max_length=255)
+
+
 class CreateLeccionSchema(BaseModel):
     curso_id: int
     orden: int = Field(ge=1)
     titulo: str = Field(max_length=150)
     xp_recompensa: int = Field(default=0, ge=5, le=50)
+    vocabulario: list[CreateLeccionVocabularioSchema] = Field(min_length=1, max_length=50)
 
 
 class UpdateLeccionSchema(BaseModel):

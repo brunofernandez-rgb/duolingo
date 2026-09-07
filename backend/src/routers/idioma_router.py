@@ -5,15 +5,20 @@ from src.db.connection import get_db
 from src.dtos.idioma_dto import CreateIdiomaDTO, IdiomaResponseDTO
 from src.schemas.idioma_schema import CreateIdiomaSchema
 from src.services.idioma_service import IdiomaService
+from src.middlewares.admin_middleware import get_admin_user
+from src.services.curso_service import CursoService
+from src.dtos.curso_dto import CreateCursoDTO
 
 router = APIRouter(prefix="/idiomas", tags=["idiomas"])
 
 
 @router.post("/", response_model=IdiomaResponseDTO, status_code=status.HTTP_201_CREATED)
-def create_idioma(payload: CreateIdiomaSchema, db: Session = Depends(get_db)):
+def create_idioma(payload: CreateIdiomaSchema, db: Session = Depends(get_db), _admin=Depends(get_admin_user)):
     result = IdiomaService(db).create(CreateIdiomaDTO(**payload.model_dump()))
     if result is None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El código del idioma ya existe")
+    for nivel in ("A1", "A2", "B1", "B2", "C1", "TECNICO"):
+        CursoService(db).create(CreateCursoDTO(idioma_id=result.id, nivel=nivel))
     return result
 
 
@@ -31,6 +36,6 @@ def get_idioma(idioma_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{idioma_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_idioma(idioma_id: int, db: Session = Depends(get_db)):
+def delete_idioma(idioma_id: int, db: Session = Depends(get_db), _admin=Depends(get_admin_user)):
     if not IdiomaService(db).delete(idioma_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Idioma no encontrado")

@@ -13,6 +13,7 @@ export interface ApiIdioma {
   id: number;
   nombre: string;
   codigo: string;
+  bandera_url: string | null;
 }
 
 export interface ApiCurso {
@@ -34,6 +35,11 @@ export interface ApiLeccion {
   idioma_nombre: string;
   idioma_codigo: string;
   vocabulario: { emoji: string; fuente: string; traduccion: string; significados: Record<string, string> }[];
+}
+
+export interface CreateVocabulario {
+  fuente: string;
+  traduccion: string;
 }
 
 export interface ApiInscripcion {
@@ -173,7 +179,20 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ password_actual: passwordActual, password_nueva: passwordNueva }),
     }),
+  cambiarNombre: (id: number, nombre: string) =>
+    request<void>(`/usuarios/${id}/nombre`, {
+      method: "PATCH",
+      body: JSON.stringify({ nombre }),
+    }),
+  usuariosAdmin: () => request<ApiUsuario[]>("/usuarios/"),
+  eliminarUsuarioComoAdmin: (id: number) =>
+    request<void>(`/usuarios/${id}/admin`, { method: "DELETE" }),
   idiomas: () => request<ApiIdioma[]>("/idiomas/"),
+  crearIdioma: (nombre: string, codigo: string, bandera_url: string) => request<ApiIdioma>("/idiomas/", {
+    method: "POST",
+    body: JSON.stringify({ nombre, codigo, bandera_url }),
+  }),
+  eliminarIdioma: (id: number) => request<void>(`/idiomas/${id}`, { method: "DELETE" }),
   cursos: () => request<ApiCurso[]>("/cursos/"),
   crearCurso: (idioma_id: number, nivel: string) => request<ApiCurso>("/cursos/", {
     method: "POST",
@@ -182,10 +201,12 @@ export const api = {
   curso: (id: number) => request<ApiCurso>(`/cursos/${id}`),
   lecciones: (cursoId: number) => request<ApiLeccion[]>(`/lecciones/curso/${cursoId}`),
   leccion: (id: number) => request<ApiLeccion>(`/lecciones/${id}`),
-  crearLeccion: (curso_id: number, orden: number, titulo: string, xp_recompensa: number) => request<ApiLeccion>("/lecciones/", {
+  crearLeccion: (curso_id: number, orden: number, titulo: string, xp_recompensa: number, vocabulario: CreateVocabulario[]) => request<ApiLeccion>("/lecciones/", {
     method: "POST",
-    body: JSON.stringify({ curso_id, orden, titulo, xp_recompensa }),
+    body: JSON.stringify({ curso_id, orden, titulo, xp_recompensa, vocabulario }),
   }),
+  eliminarCurso: (id: number) => request<void>(`/cursos/${id}`, { method: "DELETE" }),
+  eliminarLeccion: (id: number) => request<void>(`/lecciones/${id}`, { method: "DELETE" }),
   progresoCurso: (usuarioId: number, cursoId: number) =>
     request<ApiProgresoCurso>(`/usuarios/${usuarioId}/cursos/${cursoId}/progreso`),
   actividad: (usuarioId: number, desde: string, hasta: string) =>

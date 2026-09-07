@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class CreateIdiomaDTO(BaseModel):  # POST
     nombre: str
     codigo: str
+    bandera_url: str | None = None
 
 
 class UpdateIdiomaDTO(BaseModel):  # PUT/PATCH
@@ -23,5 +24,6 @@ class IdiomaResponseDTO(BaseModel):
     id: int
     nombre: str
     codigo: str
+    bandera_url: str | None = None
 
     model_config = {"from_attributes": True}

@@ -11,7 +11,8 @@ CREATE TABLE usuario (
 CREATE TABLE idioma (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL,
-    codigo VARCHAR(10) NOT NULL UNIQUE
+    codigo VARCHAR(10) NOT NULL UNIQUE,
+    bandera_url VARCHAR(255)
 );
 
 CREATE TABLE insignia (
@@ -33,8 +34,10 @@ CREATE TABLE leccion (
     curso_id INT NOT NULL,
     orden INT NOT NULL,
     titulo VARCHAR(150) NOT NULL,
-    xp_recompensa INT NOT NULL DEFAULT 0,
-    CONSTRAINT fk_leccion_curso FOREIGN KEY (curso_id) REFERENCES curso(id) ON DELETE CASCADE
+    xp_recompensa INT NOT NULL DEFAULT 5,
+    CONSTRAINT fk_leccion_curso FOREIGN KEY (curso_id) REFERENCES curso(id) ON DELETE CASCADE,
+    CONSTRAINT uq_leccion_curso_orden UNIQUE (curso_id, orden),
+    CONSTRAINT ck_leccion_xp_recompensa CHECK (xp_recompensa BETWEEN 5 AND 50)
 );
 
 CREATE TABLE leccion_vocabulario (

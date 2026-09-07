@@ -25,7 +25,7 @@ def to_leccion_response(
             LeccionVocabularioDTO(
                 emoji=palabra.emoji,
                 fuente=palabra.fuente,
-                traduccion=getattr(palabra, f"traduccion_{idioma.codigo}", palabra.fuente),
+                traduccion=getattr(palabra, f"traduccion_{idioma.codigo}", palabra.traduccion_en),
                 # "fuente" is Spanish in the database. Expose its equivalents
                 # so the client can ask the question in its selected UI language.
                 significados={

@@ -8,11 +8,17 @@ class LeccionVocabularioDTO(BaseModel):
     significados: dict[str, str]
 
 
+class CreateLeccionVocabularioDTO(BaseModel):
+    fuente: str
+    traduccion: str
+
+
 class CreateLeccionDTO(BaseModel):  # POST
     curso_id: int
     orden: int
     titulo: str
     xp_recompensa: int
+    vocabulario: list[CreateLeccionVocabularioDTO]
 
 
 class UpdateLeccionDTO(BaseModel):  # PUT/PATCH

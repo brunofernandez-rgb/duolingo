@@ -6,6 +6,8 @@ from src.db.models.curso_model import Curso
 from src.db.models.leccion_model import Leccion
 from src.db.models.leccion_vocabulario_model import LeccionVocabulario
 
+IDIOMAS_PREDETERMINADOS = frozenset({"es", "en", "pt", "it", "fr", "de"})
+
 
 # Cada nivel tiene objetivos y vocabulario propios.  No se reutiliza contenido
 # de A1 en niveles superiores: el seeder también corrige las bases creadas con
@@ -155,7 +157,7 @@ VOCABULARIO_EXTRA_POR_LECCION = {
 def seed_contenido_por_nivel(db: Session) -> None:
     """Crea y actualiza las lecciones CEFR con contenido diferenciado por nivel."""
     changed = False
-    for idioma in db.query(Idioma).all():
+    for idioma in db.query(Idioma).filter(Idioma.codigo.in_(IDIOMAS_PREDETERMINADOS)).all():
         for nivel, lecciones in LECCIONES_POR_NIVEL.items():
             curso = db.query(Curso).filter(Curso.idioma_id == idioma.id, Curso.nivel == nivel).first()
             if curso is None:
@@ -278,7 +280,7 @@ TECNICO_LECCIONES = (
 def seed_lenguaje_tecnico(db: Session) -> None:
     """Adds the workshop vocabulary level without duplicating existing data."""
     changed = False
-    for idioma in db.query(Idioma).all():
+    for idioma in db.query(Idioma).filter(Idioma.codigo.in_(IDIOMAS_PREDETERMINADOS)).all():
         curso = db.query(Curso).filter(Curso.idioma_id == idioma.id, Curso.nivel == "TECNICO").first()
         if curso is None:
             curso = Curso(idioma_id=idioma.id, nivel="TECNICO")
@@ -301,5 +303,28 @@ def seed_lenguaje_tecnico(db: Session) -> None:
                     traduccion_it=it, traduccion_pt=pt,
                 ))
             changed = True
+    if changed:
+        db.commit()
+
+
+def remove_contenido_predeterminado_de_idiomas_personalizados(db: Session) -> None:
+    """Elimina contenido automático previo de idiomas creados por el administrador."""
+    lecciones_predeterminadas = {
+        (nivel, orden, titulo, xp)
+        for nivel, lecciones in LECCIONES_POR_NIVEL.items()
+        for orden, (titulo, xp) in enumerate(lecciones, start=1)
+    }
+    lecciones_predeterminadas.update(
+        ("TECNICO", orden, titulo, xp)
+        for orden, (titulo, xp, _) in enumerate(TECNICO_LECCIONES, start=1)
+    )
+    changed = False
+    for idioma in db.query(Idioma).filter(~Idioma.codigo.in_(IDIOMAS_PREDETERMINADOS)).all():
+        for curso in db.query(Curso).filter(Curso.idioma_id == idioma.id).all():
+            for leccion in db.query(Leccion).filter(Leccion.curso_id == curso.id).all():
+                clave = (curso.nivel, leccion.orden, leccion.titulo, leccion.xp_recompensa)
+                if clave in lecciones_predeterminadas and len(leccion.vocabulario) == 6:
+                    db.delete(leccion)
+                    changed = True
     if changed:
         db.commit()

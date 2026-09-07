@@ -32,6 +32,6 @@ def create_leccion(payload: CreateLeccionSchema, db: Session = Depends(get_db), 
 
 
 @router.delete("/{leccion_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_leccion(leccion_id: int, db: Session = Depends(get_db)):
+def delete_leccion(leccion_id: int, db: Session = Depends(get_db), _admin=Depends(get_admin_user)):
     if not LeccionService(db).delete(leccion_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lección no encontrada")

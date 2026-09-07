@@ -5,8 +5,8 @@ class IdiomaRepository:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, nombre: str, codigo: str) -> Idioma:
-        idioma = Idioma(nombre=nombre, codigo=codigo)
+    def create(self, nombre: str, codigo: str, bandera_url: str | None = None) -> Idioma:
+        idioma = Idioma(nombre=nombre, codigo=codigo, bandera_url=bandera_url)
         self.db.add(idioma)
         self.db.commit()
         self.db.refresh(idioma)

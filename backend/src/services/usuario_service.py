@@ -5,6 +5,8 @@ from src.mappers.usuarios_mapper import to_usuario_response
 from src.repositories.usuario_repository import UsuariosRepository
 from src.utils.hash import hash_password, verify_password
 
+ADMIN_EMAIL = "admin@gmail.com"
+
 
 class UsuarioService:
     def __init__(self, db: Session):
@@ -26,8 +28,12 @@ class UsuarioService:
             return [
                 to_usuario_response(usuario).model_copy(update={"xp_total": xp})
                 for usuario, xp in self.repo.get_ranking_semanal()
+                if usuario.email.lower() != ADMIN_EMAIL
             ]
-        return [to_usuario_response(u) for u in self.repo.get_ranking(periodo)]
+        return [to_usuario_response(u) for u in self.repo.get_ranking(periodo) if u.email.lower() != ADMIN_EMAIL]
+
+    def list_all(self) -> list[UsuarioResponseDTO]:
+        return [to_usuario_response(usuario) for usuario in self.repo.get_ranking()]
 
     def delete(self, usuario_id: int) -> bool:
         res = self.repo.get_by_id(usuario_id)
@@ -47,6 +53,18 @@ class UsuarioService:
         if verify_password(password_nueva, usuario.password_hash):
             return False
         usuario.password_hash = hash_password(password_nueva)
+        self.repo.update(usuario)
+        return True
+
+    def change_nombre(self, usuario_id: int, nombre: str) -> bool:
+        usuario = self.repo.get_by_id(usuario_id)
+        nombre_normalizado = nombre.strip()
+        if not usuario or not nombre_normalizado:
+            return False
+        existente = self.repo.get_by_nombre(nombre_normalizado)
+        if existente and existente.id != usuario_id:
+            return False
+        usuario.nombre = nombre_normalizado
         self.repo.update(usuario)
         return True
 
