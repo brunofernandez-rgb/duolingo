@@ -27,5 +27,10 @@ class PasswordConfirmationSchema(BaseModel):
     password: str = Field(min_length=1)
 
 
+class ChangePasswordSchema(BaseModel):
+    password_actual: str = Field(min_length=1)
+    password_nueva: str = Field(min_length=8)
+
+
 class GetUsuarioSchema(BaseModel):
     id: int

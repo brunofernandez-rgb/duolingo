@@ -1,4 +1,8 @@
-from src.db.seed import LECCIONES_POR_NIVEL, VOCABULARIO_POR_LECCION
+from src.db.seed import (
+    LECCIONES_POR_NIVEL,
+    VOCABULARIO_EXTRA_POR_LECCION,
+    VOCABULARIO_POR_LECCION,
+)
 
 
 def test_cada_nivel_tiene_cinco_lecciones_propias():
@@ -19,9 +23,14 @@ def test_c1_es_mas_avanzado_que_a1():
 def test_no_se_repite_vocabulario_entre_lecciones():
     palabras = [
         fuente
-        for vocabulario in VOCABULARIO_POR_LECCION.values()
-        for _, fuente, *_ in vocabulario
+        for clave, vocabulario in VOCABULARIO_POR_LECCION.items()
+        for _, fuente, *_ in vocabulario + VOCABULARIO_EXTRA_POR_LECCION[clave]
     ]
 
     assert len(VOCABULARIO_POR_LECCION) == 25
+    assert all(len(vocabulario) == 3 for vocabulario in VOCABULARIO_EXTRA_POR_LECCION.values())
+    assert all(
+        len(VOCABULARIO_POR_LECCION[clave] + VOCABULARIO_EXTRA_POR_LECCION[clave]) == 6
+        for clave in VOCABULARIO_POR_LECCION
+    )
     assert len(palabras) == len(set(palabras))

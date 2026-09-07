@@ -40,6 +40,16 @@ class UsuarioService:
         usuario = self.repo.get_by_id(usuario_id)
         return bool(usuario and verify_password(password, usuario.password_hash))
 
+    def change_password(self, usuario_id: int, password_actual: str, password_nueva: str) -> bool:
+        usuario = self.repo.get_by_id(usuario_id)
+        if not usuario or not verify_password(password_actual, usuario.password_hash):
+            return False
+        if verify_password(password_nueva, usuario.password_hash):
+            return False
+        usuario.password_hash = hash_password(password_nueva)
+        self.repo.update(usuario)
+        return True
+
     def delete_with_password(self, usuario_id: int, password: str) -> bool:
         usuario = self.repo.get_by_id(usuario_id)
         if not usuario or not verify_password(password, usuario.password_hash):

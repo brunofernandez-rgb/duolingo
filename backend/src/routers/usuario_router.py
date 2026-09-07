@@ -5,7 +5,7 @@ from src.db.connection import get_db
 from src.dtos.amigos_dto import AmigosResponseDTO, RankingAmigosItemDTO
 from src.dtos.progreso_dto import ProgresoCursoDTO
 from src.dtos.usuarios_dto import CreateUsuarioDTO, UsuarioResponseDTO
-from src.schemas.usuario_schema import CreateUsuarioSchema, PasswordConfirmationSchema
+from src.schemas.usuario_schema import ChangePasswordSchema, CreateUsuarioSchema, PasswordConfirmationSchema
 from src.services.amigos_service import AmigosService
 from src.services.progreso_service import ProgresoService
 from src.services.usuario_service import UsuarioService
@@ -70,3 +70,14 @@ def verify_usuario_password(usuario_id: int, payload: PasswordConfirmationSchema
     if not UsuarioService(db).verify_password(usuario_id, payload.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Contraseña incorrecta")
     return {"verified": True}
+
+
+@router.patch("/{usuario_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_usuario_password(usuario_id: int, payload: ChangePasswordSchema, db: Session = Depends(get_db)):
+    if payload.password_actual == payload.password_nueva:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La nueva contrasena debe ser diferente de la actual",
+        )
+    if not UsuarioService(db).change_password(usuario_id, payload.password_actual, payload.password_nueva):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Contraseña actual incorrecta")

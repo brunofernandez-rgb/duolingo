@@ -329,6 +329,22 @@ const extra: Record<UiLang, Dict> = {
   },
 };
 
+Object.assign(extra.es, {
+  "profile.showPasswords": "Mostrar contraseñas",
+  "profile.hidePasswords": "Ocultar contraseñas",
+  "profile.passwordSameError": "La nueva contraseña debe ser diferente de la actual",
+});
+Object.assign(extra.en, {
+  "profile.showPasswords": "Show passwords",
+  "profile.hidePasswords": "Hide passwords",
+  "profile.passwordSameError": "The new password must be different from the current password",
+});
+Object.assign(extra.pt, {
+  "profile.showPasswords": "Mostrar senhas",
+  "profile.hidePasswords": "Ocultar senhas",
+  "profile.passwordSameError": "A nova senha deve ser diferente da atual",
+});
+
 Object.assign(es, extra.es);
 Object.assign(en, extra.en);
 Object.assign(pt, extra.pt);

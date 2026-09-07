@@ -168,6 +168,11 @@ export const api = {
       method: "DELETE",
       body: JSON.stringify({ password }),
     }),
+  cambiarPassword: (id: number, passwordActual: string, passwordNueva: string) =>
+    request<void>(`/usuarios/${id}/password`, {
+      method: "PATCH",
+      body: JSON.stringify({ password_actual: passwordActual, password_nueva: passwordNueva }),
+    }),
   idiomas: () => request<ApiIdioma[]>("/idiomas/"),
   cursos: () => request<ApiCurso[]>("/cursos/"),
   crearCurso: (idioma_id: number, nivel: string) => request<ApiCurso>("/cursos/", {
