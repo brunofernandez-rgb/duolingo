@@ -5,6 +5,7 @@ import { Penguin } from "@/components/duo/Penguin";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { AppShell, LanguagePicker } from "@/components/duo/AppShell";
 import { useT } from "@/lib/useT";
+import { languageName, localizeBadge } from "@/lib/i18n";
 import { IDIOMAS } from "@/data/content";
 import { useDB, usuarioActual } from "@/lib/store";
 import { api } from "@/lib/api";
@@ -51,13 +52,7 @@ function Landing() {
           <h1 className="text-3xl leading-tight font-extrabold tracking-tight md:text-5xl">
             {t("app.tagline")}
           </h1>
-          <p className="max-w-md text-base font-bold text-muted-foreground">
-            {lang === "en"
-              ? "Short lessons, XP, daily streaks, badges and leaderboards with your friends."
-              : lang === "pt"
-                ? "Lições curtas, XP, ofensiva diária, insígnias e ranking com amigos."
-                : "Lecciones cortas, XP, racha diaria, insignias y ranking con tus amigos."}
-          </p>
+          <p className="max-w-md text-base font-bold text-muted-foreground">{t("app.features")}</p>
           <div className="flex w-full max-w-xs flex-col gap-3">
             <Link to="/auth" search={{ modo: "registro" }}>
               <DuoButton size="lg" block>
@@ -122,19 +117,19 @@ function Dashboard({ userId }: { userId: number }) {
     queryFn: () => api.actividad(userId, formatDate(desde), formatDate(hasta)),
   });
 
-  if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading || actividad.isLoading) return <p>Cargando tu inicio...</p>;
-  if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError || actividad.isError) return <p>No se pudo cargar tu inicio.</p>;
+  if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading || actividad.isLoading) return <p>{t("home.loading")}</p>;
+  if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError || actividad.isError) return <p>{t("home.loadError")}</p>;
 
   return (
     <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_18rem] md:items-start">
       <div className="space-y-8">
         <div>
           <p className="text-sm font-extrabold uppercase tracking-wide text-primary">Pingu</p>
-          <h1 className="mt-2 text-3xl font-extrabold">Inicio</h1>
+          <h1 className="mt-2 text-3xl font-extrabold">{t("home.title")}</h1>
         </div>
         <section className="space-y-4">
-        <h2 className="text-2xl font-extrabold">Continuar aprendiendo</h2>
-        <p className="font-bold text-muted-foreground">Hola, {usuario.data.nombre}. Retomá tus cursos y seguí con la próxima lección.</p>
+        <h2 className="text-2xl font-extrabold">{t("home.continue")}</h2>
+        <p className="font-bold text-muted-foreground">{t("home.greeting").replace("{name}", usuario.data.nombre)}</p>
         {inscripciones.data?.length ? (
           <div className="grid gap-4 sm:grid-cols-2">
             {inscripciones.data.map((inscripcion) => (
@@ -143,7 +138,7 @@ function Dashboard({ userId }: { userId: number }) {
           </div>
         ) : (
           <div className="rounded-2xl border-2 border-dashed border-border p-6 text-center">
-            <p className="font-bold text-muted-foreground">Todavía no estás inscripto en ningún curso.</p>
+            <p className="font-bold text-muted-foreground">{t("home.noCourses")}</p>
             <Link to="/aprender" className="mt-4 inline-flex">
               <DuoButton>{t("nav.learn")}</DuoButton>
             </Link>
@@ -154,7 +149,7 @@ function Dashboard({ userId }: { userId: number }) {
       </div>
       <div className="space-y-5">
         <aside className="rounded-2xl border-2 border-border bg-card p-3">
-          <h2 className="flex items-center gap-2 font-extrabold"><Users className="h-5 w-5 text-primary" /> Amigos</h2>
+          <h2 className="flex items-center gap-2 font-extrabold"><Users className="h-5 w-5 text-primary" /> {t("friends.title")}</h2>
           {amigos.data?.length ? (
             <ul className="mt-3 space-y-2">
               {amigos.data.slice(0, 4).map((amigo) => (
@@ -164,11 +159,11 @@ function Dashboard({ userId }: { userId: number }) {
                 </li>
               ))}
             </ul>
-          ) : <p className="mt-3 text-sm font-bold text-muted-foreground">Todavía no tenés amigos.</p>}
-          <Link to="/amigos" className="mt-3 inline-flex text-sm font-extrabold text-primary">Ver amigos</Link>
+          ) : <p className="mt-3 text-sm font-bold text-muted-foreground">{t("home.noFriends")}</p>}
+          <Link to="/amigos" className="mt-3 inline-flex text-sm font-extrabold text-primary">{t("home.viewFriends")}</Link>
         </aside>
         <aside className="rounded-2xl border-2 border-border bg-card p-3">
-          <h2 className="flex items-center gap-2 font-extrabold"><Trophy className="h-5 w-5 text-gold" /> Ranking semanal</h2>
+          <h2 className="flex items-center gap-2 font-extrabold"><Trophy className="h-5 w-5 text-gold" /> {t("home.weeklyRanking")}</h2>
           <ol className="mt-3 space-y-2">
             {(ranking.data ?? []).slice(0, 4).map((usuario, index) => (
               <li key={usuario.id} className="flex items-center justify-between gap-2 text-sm">
@@ -179,21 +174,22 @@ function Dashboard({ userId }: { userId: number }) {
           </ol>
         </aside>
         <section className="space-y-3 rounded-2xl border-2 border-border bg-card p-3">
-          <h2 className="flex items-center gap-2 font-extrabold"><Award className="h-5 w-5 text-gold" /> Insignias conseguidas</h2>
+          <h2 className="flex items-center gap-2 font-extrabold"><Award className="h-5 w-5 text-gold" /> {t("home.earnedBadges")}</h2>
           {insignias.data?.length ? (
             <div className="space-y-2">
-              {insignias.data.map((insignia) => (
-                <article key={insignia.insignia_id} className="flex items-center gap-2 rounded-xl border-2 border-border p-2">
+              {insignias.data.map((insignia) => {
+                const localized = localizeBadge(lang, insignia);
+                return <article key={insignia.insignia_id} className="flex items-center gap-2 rounded-xl border-2 border-border p-2">
                   <Award className="h-6 w-6 shrink-0 text-gold" />
                   <div className="min-w-0">
-                    <h3 className="truncate text-sm font-extrabold">{insignia.insignia_nombre}</h3>
-                    <p className="truncate text-xs font-bold text-muted-foreground">{insignia.insignia_descripcion}</p>
-                    <p className="text-xs font-bold text-muted-foreground">Conseguida el {new Intl.DateTimeFormat(lang).format(new Date(insignia.fecha))}</p>
+                    <h3 className="truncate text-sm font-extrabold">{localized.name}</h3>
+                    <p className="truncate text-xs font-bold text-muted-foreground">{localized.description}</p>
+                    <p className="text-xs font-bold text-muted-foreground">{t("home.badgeEarned")} {new Intl.DateTimeFormat(lang).format(new Date(insignia.fecha))}</p>
                   </div>
-                </article>
-              ))}
+                </article>;
+              })}
             </div>
-          ) : <p className="text-sm font-bold text-muted-foreground">Todavía no conseguiste insignias.</p>}
+          ) : <p className="text-sm font-bold text-muted-foreground">{t("home.noBadges")}</p>}
         </section>
       </div>
     </div>
@@ -207,7 +203,7 @@ function ContinueCourse({
   userId: number;
   inscripcion: { curso_id: number; curso_nivel: string; idioma_nombre: string; idioma_codigo: string };
 }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const navigate = useNavigate();
   const progreso = useQuery({
     queryKey: ["progreso", userId, inscripcion.curso_id],
@@ -231,16 +227,16 @@ function ContinueCourse({
       <div className="flex items-start gap-3">
         <BookOpen className="mt-1 h-6 w-6 shrink-0 text-primary" />
         <div>
-          <h3 className="text-lg font-extrabold">{inscripcion.idioma_nombre} · {inscripcion.curso_nivel}</h3>
+          <h3 className="text-lg font-extrabold">{languageName(lang, inscripcion.idioma_codigo, inscripcion.idioma_nombre)} · {inscripcion.curso_nivel}</h3>
           <p className="mt-1 font-bold text-muted-foreground">
-            {progreso.data ? `${progreso.data.completadas}/${progreso.data.total_lecciones} ${t("course.lessons")}` : "Cargando progreso..."}
+            {progreso.data ? `${progreso.data.completadas}/${progreso.data.total_lecciones} ${t("course.lessons")}` : t("course.loadingProgress")}
           </p>
         </div>
       </div>
       <DuoButton className="mt-3" size="sm" disabled={progreso.isLoading} onClick={continuar}>
         {progreso.data?.proxima_leccion_id
-          ? progreso.data.completadas > 0 ? "Continuar" : "Comenzar"
-          : "Ver curso"} <ArrowRight className="h-4 w-4" />
+          ? progreso.data.completadas > 0 ? t("course.continue") : t("course.start")
+          : t("course.view")} <ArrowRight className="h-4 w-4" />
       </DuoButton>
     </article>
   );

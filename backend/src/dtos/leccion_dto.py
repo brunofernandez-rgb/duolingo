@@ -5,6 +5,7 @@ class LeccionVocabularioDTO(BaseModel):
     emoji: str
     fuente: str
     traduccion: str
+    significados: dict[str, str]
 
 
 class CreateLeccionDTO(BaseModel):  # POST

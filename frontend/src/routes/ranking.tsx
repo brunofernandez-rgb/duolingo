@@ -9,8 +9,8 @@ function Ranking({ user }: { user: { id: string } }) {
   const { t } = useT();
   const global = useQuery({ queryKey: ["ranking", "global"], queryFn: () => api.ranking("global") });
   const weekly = useQuery({ queryKey: ["ranking", "semanal"], queryFn: () => api.ranking("semanal") });
-  if (global.isLoading || weekly.isLoading) return <p>Cargando ranking...</p>;
-  if (global.isError || weekly.isError) return <p>No se pudo cargar el ranking.</p>;
+  if (global.isLoading || weekly.isLoading) return <p>{t("ranking.loading")}</p>;
+  if (global.isError || weekly.isError) return <p>{t("ranking.loadError")}</p>;
 
   const rankingList = (title: string, entries: typeof global.data) => (
     <section className="min-w-0 space-y-3">

@@ -7,6 +7,7 @@ import { DuoButton } from "@/components/duo/DuoButton";
 import { RequireAuth } from "@/components/duo/RequireAuth";
 import { api } from "@/lib/api";
 import { useT } from "@/lib/useT";
+import { lessonName } from "@/lib/i18n";
 
 type Vocabulary = { source: string; translation: string };
 
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/leccion/$leccionId")({
 
 function Leccion({ user }: { user: { id: string } }) {
   const { leccionId } = Route.useParams();
-  const { t } = useT();
+  const { t, lang } = useT();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -39,14 +40,22 @@ function Leccion({ user }: { user: { id: string } }) {
     onSuccess: (_, puntaje) => {
       queryClient.invalidateQueries({ queryKey: ["progreso"] });
       queryClient.invalidateQueries({ queryKey: ["usuario", user.id] });
+      // XP for the current week is derived by the backend from completed
+      // progress records, so refresh the cached weekly table as well.
+      queryClient.invalidateQueries({ queryKey: ["ranking"] });
       setFinalScore(puntaje);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : t("lesson.failed")),
   });
 
-  if (lesson.isLoading) return <p>Cargando lección...</p>;
-  if (lesson.isError || !lesson.data) return <p>No se pudo cargar la lección.</p>;
-  const vocabulary = lesson.data.vocabulario.map((word) => ({ source: word.fuente, translation: word.traduccion }));
+  if (lesson.isLoading) return <p>{t("lesson.loading")}</p>;
+  if (lesson.isError || !lesson.data) return <p>{t("lesson.loadError")}</p>;
+  // The prompt follows the app language; the answer remains the language of
+  // the course (`traduccion` is chosen by the backend using idioma_codigo).
+  const vocabulary = lesson.data.vocabulario.map((word) => ({
+    source: word.significados[lang] ?? word.fuente,
+    translation: word.traduccion,
+  }));
   const questions = vocabulary;
   const question = questions[questionIndex];
   const options = optionsFor(question, vocabulary, questionIndex);
@@ -58,11 +67,11 @@ function Leccion({ user }: { user: { id: string } }) {
       <div className="mx-auto max-w-xl space-y-6 text-center">
         <Trophy className="mx-auto h-14 w-14 text-gold" />
         <div>
-          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">{lesson.data.titulo}</p>
-          <h1 className="mt-2 text-3xl font-extrabold">Resultado de la lección</h1>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">{lessonName(lang, lesson.data.curso_nivel, lesson.data.orden, lesson.data.titulo)}</p>
+          <h1 className="mt-2 text-3xl font-extrabold">{t("lesson.result")}</h1>
         </div>
         <div className="rounded-3xl border-2 border-border bg-card p-8">
-          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">Puntaje</p>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-muted-foreground">{t("lesson.scoreLabel")}</p>
           <p className="mt-2 text-7xl font-extrabold text-primary">{finalScore}<span className="text-3xl">/100</span></p>
           <p className="mt-4 font-bold text-muted-foreground">{finalCorrectAnswers} de {questions.length} respuestas correctas</p>
           <p className={`mt-3 font-extrabold ${finalScore >= 60 ? "text-success" : "text-destructive"}`}>
@@ -111,7 +120,7 @@ function Leccion({ user }: { user: { id: string } }) {
       <Link to="/curso/$cursoId" params={{ cursoId: String(lesson.data.curso_id) }} className="text-sm font-extrabold text-primary">← {t("lesson.exit")}</Link>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm font-extrabold text-muted-foreground">
-          <span>{lesson.data.titulo}</span>
+          <span>{lessonName(lang, lesson.data.curso_nivel, lesson.data.orden, lesson.data.titulo)}</span>
           <span>{questionIndex + 1}/{questions.length}</span>
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-secondary">

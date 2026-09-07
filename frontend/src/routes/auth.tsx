@@ -49,7 +49,7 @@ function AuthPage() {
     try {
       if (esRecuperacion) {
         await api.resetPassword(email, password);
-        toast.success("Contraseña actualizada. Ya podés iniciar sesión.");
+        toast.success(t("auth.passwordUpdated"));
         navigate({ to: "/auth", search: { modo: "login" } });
         return;
       }
@@ -77,7 +77,7 @@ function AuthPage() {
 
       <main className="mx-auto w-full max-w-md px-4 py-8">
         <h1 className="mb-6 text-center text-2xl font-extrabold">
-          {esRegistro ? t("auth.register") : esRecuperacion ? "Cambiar contraseña" : t("auth.login")}
+          {esRegistro ? t("auth.register") : esRecuperacion ? t("common.changePassword") : t("auth.login")}
         </h1>
         <form onSubmit={submit} className="space-y-3">
           {esRegistro && (
@@ -100,7 +100,7 @@ function AuthPage() {
           <input
             className={inputClass}
             type="password"
-            placeholder="Contraseña"
+            placeholder={t("common.password")}
             value={password}
             minLength={8}
             required
@@ -108,7 +108,7 @@ function AuthPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <DuoButton type="submit" size="lg" block>
-            {esRegistro ? t("auth.register") : esRecuperacion ? "Cambiar contraseña" : t("auth.login")}
+            {esRegistro ? t("auth.register") : esRecuperacion ? t("common.changePassword") : t("auth.login")}
           </DuoButton>
         </form>
 
@@ -123,7 +123,7 @@ function AuthPage() {
         {modo === "login" && (
           <div className="mt-2 text-center">
             <Link to="/auth" search={{ modo: "recuperar" }}>
-              <DuoButton variant="ghost" size="sm">Olvidé mi contraseña</DuoButton>
+              <DuoButton variant="ghost" size="sm">{t("common.passwordForgot")}</DuoButton>
             </Link>
           </div>
         )}

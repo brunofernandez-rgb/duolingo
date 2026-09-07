@@ -33,7 +33,7 @@ export interface ApiLeccion {
   idioma_id: number;
   idioma_nombre: string;
   idioma_codigo: string;
-  vocabulario: { emoji: string; fuente: string; traduccion: string }[];
+  vocabulario: { emoji: string; fuente: string; traduccion: string; significados: Record<string, string> }[];
 }
 
 export interface ApiInscripcion {
@@ -170,9 +170,17 @@ export const api = {
     }),
   idiomas: () => request<ApiIdioma[]>("/idiomas/"),
   cursos: () => request<ApiCurso[]>("/cursos/"),
+  crearCurso: (idioma_id: number, nivel: string) => request<ApiCurso>("/cursos/", {
+    method: "POST",
+    body: JSON.stringify({ idioma_id, nivel }),
+  }),
   curso: (id: number) => request<ApiCurso>(`/cursos/${id}`),
   lecciones: (cursoId: number) => request<ApiLeccion[]>(`/lecciones/curso/${cursoId}`),
   leccion: (id: number) => request<ApiLeccion>(`/lecciones/${id}`),
+  crearLeccion: (curso_id: number, orden: number, titulo: string, xp_recompensa: number) => request<ApiLeccion>("/lecciones/", {
+    method: "POST",
+    body: JSON.stringify({ curso_id, orden, titulo, xp_recompensa }),
+  }),
   progresoCurso: (usuarioId: number, cursoId: number) =>
     request<ApiProgresoCurso>(`/usuarios/${usuarioId}/cursos/${cursoId}/progreso`),
   actividad: (usuarioId: number, desde: string, hasta: string) =>

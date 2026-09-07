@@ -17,14 +17,14 @@ function RankingAmigos({ user }: { user: { id: string } }) {
     queryFn: () => api.rankingAmigos(userId),
   });
 
-  if (ranking.isLoading) return <p>Cargando ranking entre amigos...</p>;
-  if (ranking.isError) return <p>No se pudo cargar el ranking entre amigos.</p>;
+  if (ranking.isLoading) return <p>{t("ranking.loading")}</p>;
+  if (ranking.isError) return <p>{t("ranking.loadError")}</p>;
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-extrabold">Ranking entre amigos</h1>
-        <p className="mt-1 font-bold text-muted-foreground">Compará tu progreso con tus amigos.</p>
+        <h1 className="text-2xl font-extrabold">{t("ranking.friendsTitle")}</h1>
+        <p className="mt-1 font-bold text-muted-foreground">{t("ranking.friendsDescription")}</p>
       </div>
       {ranking.data?.length ? (
         <ol className="space-y-3">
@@ -49,7 +49,7 @@ function RankingAmigos({ user }: { user: { id: string } }) {
           })}
         </ol>
       ) : (
-        <p className="rounded-2xl border-2 border-dashed border-border p-5 font-bold text-muted-foreground">Todavía no tenés amigos para comparar.</p>
+        <p className="rounded-2xl border-2 border-dashed border-border p-5 font-bold text-muted-foreground">{t("ranking.friendsEmpty")}</p>
       )}
     </div>
   );

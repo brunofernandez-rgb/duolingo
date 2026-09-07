@@ -26,6 +26,13 @@ def to_leccion_response(
                 emoji=palabra.emoji,
                 fuente=palabra.fuente,
                 traduccion=getattr(palabra, f"traduccion_{idioma.codigo}", palabra.fuente),
+                # "fuente" is Spanish in the database. Expose its equivalents
+                # so the client can ask the question in its selected UI language.
+                significados={
+                    "es": palabra.fuente,
+                    "en": palabra.traduccion_en,
+                    "pt": palabra.traduccion_pt,
+                },
             )
             for palabra in leccion.vocabulario
         ],

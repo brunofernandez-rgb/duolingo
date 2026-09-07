@@ -7,6 +7,8 @@ import { RequireAuth } from "@/components/duo/RequireAuth";
 import { DuoButton } from "@/components/duo/DuoButton";
 import { api } from "@/lib/api";
 import { useT } from "@/lib/useT";
+import { languageName } from "@/lib/i18n";
+import { levelName } from "@/lib/i18n";
 
 const BANDERAS: Record<string, string> = {
   es: "https://flagcdn.com/w80/ar.png",
@@ -16,14 +18,14 @@ const BANDERAS: Record<string, string> = {
   fr: "https://flagcdn.com/w80/fr.png",
   de: "https://flagcdn.com/w80/de.png",
 };
-const NIVELES = ["A1", "A2", "B1", "B2", "C1"];
+const NIVELES = ["A1", "A2", "B1", "B2", "C1", "TECNICO"];
 
 export const Route = createFileRoute("/aprender")({
   component: () => <RequireAuth>{(ctx) => <Aprender user={ctx.user} />}</RequireAuth>,
 });
 
 function Aprender({ user }: { user: { id: string } }) {
-  const { t } = useT();
+  const { t, lang } = useT();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const userId = Number(user.id);
@@ -76,9 +78,9 @@ function Aprender({ user }: { user: { id: string } }) {
         {(idiomasQuery.data ?? []).map((idioma) => (
           <article key={idioma.id} className="rounded-3xl border-2 border-b-4 border-border bg-card p-5">
             <div className="flex items-center gap-4">
-              <img className="h-10 w-14 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={`Bandera de ${idioma.nombre}`} />
+              <img className="h-10 w-14 rounded object-cover" src={BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />
               <div>
-                <h2 className="text-xl font-extrabold">{idioma.nombre}</h2>
+                <h2 className="text-xl font-extrabold">{languageName(lang, idioma.codigo, idioma.nombre)}</h2>
               </div>
             </div>
             <label className="mt-5 block text-sm font-extrabold">
@@ -88,7 +90,7 @@ function Aprender({ user }: { user: { id: string } }) {
                 value={niveles[idioma.codigo] ?? "A1"}
                 onChange={(event) => setNiveles((current) => ({ ...current, [idioma.codigo]: event.target.value }))}
               >
-                {NIVELES.map((nivel) => <option key={nivel} value={nivel}>{nivel}</option>)}
+                {NIVELES.map((nivel) => <option key={nivel} value={nivel}>{levelName(lang, nivel)}</option>)}
               </select>
             </label>
             <DuoButton
@@ -105,22 +107,22 @@ function Aprender({ user }: { user: { id: string } }) {
                   return;
                 }
                 if (inscripciones.has(curso.id)) {
-                  toast.info(cursosCompletados.has(curso.id) ? `Ya completaste ${idioma.nombre} nivel ${nivel}` : `Ya estás inscrito en ${idioma.nombre} nivel ${nivel}`);
+                  toast.info(cursosCompletados.has(curso.id) ? `${t("course.alreadyCompleted")}: ${languageName(lang, idioma.codigo, idioma.nombre)} ${nivel}` : `${t("course.alreadyEnrolled")}: ${languageName(lang, idioma.codigo, idioma.nombre)} ${nivel}`);
                   return;
                 }
                 if (idiomasActivos.has(idioma.codigo)) {
-                  toast.info(`Ya estás inscrito en otro nivel activo de ${idioma.nombre}`);
+                  toast.info(`${t("course.otherActive")}: ${languageName(lang, idioma.codigo, idioma.nombre)}`);
                   return;
                 }
                 inscribirMutation.mutate(curso.id);
               }}
             >
               {cursosCompletados.has(cursosQuery.data?.find((item) => item.idioma_codigo === idioma.codigo && item.nivel === (niveles[idioma.codigo] ?? "A1"))?.id ?? -1)
-                ? "Ya completado"
+                ? t("course.alreadyCompleted")
                 : inscripciones.has(cursosQuery.data?.find((item) => item.idioma_codigo === idioma.codigo && item.nivel === (niveles[idioma.codigo] ?? "A1"))?.id ?? -1)
-                  ? "Ya estás inscrito"
+                  ? t("course.alreadyEnrolled")
                 : idiomasActivos.has(idioma.codigo)
-                  ? "Otro nivel activo"
+                  ? t("course.otherActive")
                 : t("course.enroll")}
             </DuoButton>
           </article>
