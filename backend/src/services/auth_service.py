@@ -13,6 +13,7 @@ class AuthService:
         self.repo = UsuariosRepository(db)
 
     def login(self, dto: LoginDTO) -> TokenDTO:
+        self.repo.reset_rachas_vencidas()
         user = self.repo.get_by_email(dto.email)
         if not user or not verify_password(dto.password, user.password_hash):
             raise UnauthorizedError("Invalid credentials")

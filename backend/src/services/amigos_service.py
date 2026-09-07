@@ -21,10 +21,12 @@ class AmigosService:
         return to_amigos_response(res[0], res[1]) if res else None
 
     def get_amigos(self, usuario_id: int) -> list[AmigosResponseDTO]:
+        self.usuario_repo.reset_rachas_vencidas()
         resultados = self.repo.get_amigos_join_usuario(usuario_id)
         return [to_amigos_response(amigo, usuario) for amigo, usuario in resultados]
 
     def get_ranking_amigos(self, usuario_id: int) -> list[RankingAmigosItemDTO]:
+        self.usuario_repo.reset_rachas_vencidas()
         usuario = self.usuario_repo.get_by_id(usuario_id)
         if not usuario:
             return []

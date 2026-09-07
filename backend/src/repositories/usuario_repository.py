@@ -1,8 +1,21 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from src.db.models.leccion_model import Leccion
 from src.db.models.progreso_model import Progreso
 from src.db.models.usuario_model import Usuario
+
+
+def inicio_de_semana(fecha: datetime) -> datetime:
+    """Devuelve el lunes a las 00:00 de la semana de ``fecha``."""
+    lunes = fecha.date() - timedelta(days=fecha.weekday())
+    return datetime.combine(lunes, time.min)
+
+
+def racha_vencida(fecha_ultima_actividad: datetime | None, hoy: date) -> bool:
+    """Indica si se dejó pasar al menos un día calendario sin actividad."""
+    return fecha_ultima_actividad is None or fecha_ultima_actividad.date() < hoy - timedelta(days=1)
+
 
 class UsuariosRepository:
     def __init__(self, db: Session):
@@ -21,13 +34,28 @@ class UsuariosRepository:
     def get_by_email(self, email: str) -> Usuario | None:
         return self.db.query(Usuario).filter(Usuario.email == email).first()
 
+    def reset_rachas_vencidas(self, hoy: date | None = None) -> int:
+        """Pone en cero las rachas cuyo último día activo no fue hoy ni ayer."""
+        fecha_actual = hoy or datetime.now().date()
+        limite = datetime.combine(fecha_actual - timedelta(days=1), time.min)
+        actualizadas = (
+            self.db.query(Usuario)
+            .filter(
+                Usuario.racha_dias > 0,
+                or_(Usuario.fecha_ultima_actividad.is_(None), Usuario.fecha_ultima_actividad < limite),
+            )
+            .update({Usuario.racha_dias: 0}, synchronize_session=False)
+        )
+        if actualizadas:
+            self.db.commit()
+        return int(actualizadas)
+
     def get_ranking(self, periodo: str = "global", limit: int | None = None) -> list[Usuario]:
         query = self.db.query(Usuario).order_by(Usuario.xp_total.desc(), Usuario.racha_dias.desc(), Usuario.id.asc())
         return query.limit(limit).all() if limit is not None else query.all()
 
     def get_ranking_semanal(self) -> list[tuple[Usuario, int]]:
-        hoy = datetime.now()
-        inicio_semana = hoy - timedelta(days=hoy.weekday())
+        inicio_semana = inicio_de_semana(datetime.now())
         progresos = (
             self.db.query(Progreso.usuario_id, Progreso.leccion_id, Leccion.xp_recompensa)
             .join(Leccion, Progreso.leccion_id == Leccion.id)

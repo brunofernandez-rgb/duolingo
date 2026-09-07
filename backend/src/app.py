@@ -21,10 +21,11 @@ from src.routers import (
 from src.utils.errors import AppError
 from src.db.connection import Base, SessionLocal, engine
 from src.db.models.leccion_model import Leccion
-from src.db.seed import seed_insignias, seed_lenguaje_tecnico
+from src.db.seed import seed_contenido_por_nivel, seed_insignias, seed_lenguaje_tecnico
 
 Base.metadata.create_all(bind=engine)
 with SessionLocal() as db:
+    seed_contenido_por_nivel(db)
     seed_insignias(db)
     seed_lenguaje_tecnico(db)
 
