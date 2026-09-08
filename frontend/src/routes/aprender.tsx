@@ -75,7 +75,7 @@ function Aprender({ user }: { user: { id: string } }) {
         <h1 className="mt-2 text-3xl font-extrabold">{t("course.choose")}</h1>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(idiomasQuery.data ?? []).map((idioma) => (
+        {(idiomasQuery.data ?? []).filter((idioma) => idioma.codigo !== "es").map((idioma) => (
           <article key={idioma.id} className="rounded-3xl border-2 border-b-4 border-border bg-card p-5">
             <div className="flex items-center gap-4">
               <img className="h-10 w-14 rounded object-cover" src={idioma.bandera_url ?? BANDERAS[idioma.codigo]} alt={languageName(lang, idioma.codigo, idioma.nombre)} />

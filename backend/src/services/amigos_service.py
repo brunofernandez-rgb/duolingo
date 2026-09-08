@@ -6,6 +6,7 @@ from src.repositories.amigos_repository import AmigosRepository
 from src.repositories.usuario_repository import UsuariosRepository
 
 ADMIN_EMAIL = "admin@gmail.com"
+RANKING_LIMIT = 50
 
 
 class AmigosService:
@@ -51,7 +52,7 @@ class AmigosService:
                 racha_dias=participante.racha_dias,
             )
             for posicion, participante in enumerate(participantes, start=1)
-        ]
+        ][:RANKING_LIMIT]
 
     def delete(self, usuario_a: int, usuario_b: int) -> bool:
         amigo = self.repo.get_by_id(usuario_a, usuario_b) or self.repo.get_by_id(usuario_b, usuario_a)

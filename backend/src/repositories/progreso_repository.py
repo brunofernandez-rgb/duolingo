@@ -20,13 +20,17 @@ class ProgresoRepository:
         puntaje: int,
         completada: bool,
         fecha: datetime | None = None,
+        fecha_completada: datetime | None = None,
+        xp_obtenida: int = 0,
     ) -> Progreso:
         progreso = Progreso(
             usuario_id=usuario_id,
             leccion_id=leccion_id,
             puntaje=puntaje,
             completada=completada,
-            fecha=fecha
+            fecha=fecha,
+            fecha_completada=fecha_completada,
+            xp_obtenida=xp_obtenida,
         )
         self.db.add(progreso)
         self.db.commit()
@@ -99,20 +103,19 @@ class ProgresoRepository:
 
     def get_actividad_por_rango(self, usuario_id: int, desde: date, hasta: date) -> list[dict]:
         progresos = (
-            self.db.query(Progreso.fecha, Progreso.leccion_id, Leccion.xp_recompensa)
-            .join(Leccion, Progreso.leccion_id == Leccion.id)
+            self.db.query(Progreso.fecha_completada, Progreso.leccion_id, Progreso.xp_obtenida)
             .filter(
                 Progreso.usuario_id == usuario_id,
                 Progreso.completada.is_(True),
-                Progreso.fecha >= datetime.combine(desde, datetime.min.time()),
-                Progreso.fecha < datetime.combine(hasta + timedelta(days=1), datetime.min.time()),
+                Progreso.fecha_completada >= datetime.combine(desde, datetime.min.time()),
+                Progreso.fecha_completada < datetime.combine(hasta + timedelta(days=1), datetime.min.time()),
             )
             .all()
         )
         actividad: dict[date, dict[str, object]] = defaultdict(lambda: {"xp": 0, "lecciones": set()})
-        for fecha, leccion_id, xp_recompensa in progresos:
-            dia = fecha.date()
-            actividad[dia]["xp"] = int(actividad[dia]["xp"]) + xp_recompensa
+        for fecha_completada, leccion_id, xp_obtenida in progresos:
+            dia = fecha_completada.date()
+            actividad[dia]["xp"] = int(actividad[dia]["xp"]) + xp_obtenida
             actividad[dia]["lecciones"].add(leccion_id)
 
         resultado: list[dict] = []

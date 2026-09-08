@@ -25,7 +25,14 @@ def to_leccion_response(
             LeccionVocabularioDTO(
                 emoji=palabra.emoji,
                 fuente=palabra.fuente,
-                traduccion=getattr(palabra, f"traduccion_{idioma.codigo}", palabra.traduccion_en),
+                # The source vocabulary is Spanish. There is no separate
+                # `traduccion_es` column, so a Spanish course must use the
+                # source itself instead of falling back to English.
+                traduccion=(
+                    palabra.fuente
+                    if idioma.codigo == "es"
+                    else getattr(palabra, f"traduccion_{idioma.codigo}", palabra.traduccion_en)
+                ),
                 # "fuente" is Spanish in the database. Expose its equivalents
                 # so the client can ask the question in its selected UI language.
                 significados={

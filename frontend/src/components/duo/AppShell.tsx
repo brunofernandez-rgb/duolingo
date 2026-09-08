@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const currentUser = userQuery.data ?? user;
   const isAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL;
   const navItems = isAdmin ? [...NAV.filter((item) => item.to !== "/amigos" && item.to !== "/ranking-amigos"), ADMIN_NAV] : NAV;
-  const mobileNavItems = isAdmin ? [...NAV.filter((item) => item.to !== "/amigos" && item.to !== "/ranking-amigos").slice(0, 5), ADMIN_NAV] : NAV.slice(0, 6);
+  const mobileNavItems = navItems;
   const { t } = useT();
   const navigate = useNavigate();
 
@@ -146,18 +146,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-border bg-background md:hidden">
-        <ul className="flex items-center justify-around px-1 py-2">
+        <ul className="flex w-full items-center gap-2 overflow-x-auto overscroll-x-contain px-3 py-2.5">
           {mobileNavItems.map((item) => (
-            <li key={item.to}>
+            <li key={item.to} className="shrink-0">
               <Link
                 to={item.to}
-                className="flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 text-[10px] font-extrabold uppercase text-muted-foreground"
+                className="flex h-12 w-14 flex-col items-center justify-center rounded-2xl text-muted-foreground"
                 activeProps={{
                   className:
-                    "flex flex-col items-center gap-0.5 rounded-xl bg-primary-soft px-3 py-1 text-[10px] font-extrabold uppercase text-primary",
+                    "flex h-12 w-14 flex-col items-center justify-center rounded-2xl bg-primary-soft text-primary",
                 }}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-6 w-6" />
               </Link>
             </li>
           ))}

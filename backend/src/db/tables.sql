@@ -118,6 +118,8 @@ CREATE TABLE progreso (
     puntaje INT NOT NULL DEFAULT 0,
     completada BOOLEAN NOT NULL DEFAULT FALSE,
     fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_completada TIMESTAMP,
+    xp_obtenida INT NOT NULL DEFAULT 0,
     CONSTRAINT fk_progreso_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
     CONSTRAINT fk_progreso_leccion FOREIGN KEY (leccion_id) REFERENCES leccion(id) ON DELETE CASCADE
 );

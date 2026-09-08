@@ -23,6 +23,8 @@ from sqlalchemy import inspect, text
 
 from src.db.connection import Base, SessionLocal, engine
 from src.db.models.leccion_model import Leccion
+from src.db.models.progreso_model import Progreso
+from src.db.models.usuario_model import Usuario
 from src.db.seed import (
     remove_contenido_predeterminado_de_idiomas_personalizados,
     seed_contenido_por_nivel,
@@ -35,7 +37,40 @@ with engine.begin() as connection:
     columnas_idioma = {column["name"] for column in inspect(connection).get_columns("idioma")}
     if "bandera_url" not in columnas_idioma:
         connection.execute(text("ALTER TABLE idioma ADD COLUMN bandera_url VARCHAR(255)"))
+    columnas_progreso = {column["name"] for column in inspect(connection).get_columns("progreso")}
+    if "fecha_completada" not in columnas_progreso:
+        connection.execute(text("ALTER TABLE progreso ADD COLUMN fecha_completada TIMESTAMP"))
+    if "xp_obtenida" not in columnas_progreso:
+        connection.execute(text("ALTER TABLE progreso ADD COLUMN xp_obtenida INTEGER NOT NULL DEFAULT 0"))
 with SessionLocal() as db:
+    # Existing records did not preserve the original reward or completion time.
+    # Backfill from the only available historical values, then keep snapshots for
+    # every future completion so retries and reward edits cannot change the history.
+    completados = (
+        db.query(Progreso, Leccion)
+        .join(Leccion, Progreso.leccion_id == Leccion.id)
+        .filter(Progreso.completada.is_(True))
+        .all()
+    )
+    for progreso, leccion in completados:
+        if progreso.fecha_completada is None:
+            progreso.fecha_completada = progreso.fecha
+        if progreso.xp_obtenida == 0:
+            progreso.xp_obtenida = leccion.xp_recompensa
+    if completados:
+        db.commit()
+
+    # The header uses the same immutable completion snapshots as activity.
+    for usuario in db.query(Usuario).all():
+        xp_calculada = sum(
+            progreso.xp_obtenida
+            for progreso in db.query(Progreso)
+            .filter(Progreso.usuario_id == usuario.id, Progreso.completada.is_(True))
+            .all()
+        )
+        if usuario.xp_total != xp_calculada:
+            usuario.xp_total = xp_calculada
+    db.commit()
     remove_contenido_predeterminado_de_idiomas_personalizados(db)
     seed_contenido_por_nivel(db)
     seed_insignias(db)

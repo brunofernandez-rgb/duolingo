@@ -3,10 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Award, BookOpen, Trophy, Users } from "lucide-react";
 import { Penguin } from "@/components/duo/Penguin";
 import { DuoButton } from "@/components/duo/DuoButton";
-import { AppShell, LanguagePicker } from "@/components/duo/AppShell";
+import { AppShell } from "@/components/duo/AppShell";
 import { useT } from "@/lib/useT";
 import { languageName, localizeBadge } from "@/lib/i18n";
-import { IDIOMAS } from "@/data/content";
 import { useDB, usuarioActual } from "@/lib/store";
 import { api } from "@/lib/api";
 import { ActivityHeatmap } from "@/components/duo/ActivityHeatmap";
@@ -44,7 +43,6 @@ function Landing() {
         <span className="flex items-center gap-2 text-2xl font-extrabold text-primary">
           <Penguin className="h-10 w-10" priority /> {t("app.name")}
         </span>
-        <LanguagePicker />
       </header>
 
       <main className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-10 md:grid-cols-2 md:py-20">
@@ -65,20 +63,10 @@ function Landing() {
               </DuoButton>
             </Link>
           </div>
-          <ul className="mt-2 flex flex-wrap justify-center gap-2 md:justify-start">
-            {IDIOMAS.map((i) => (
-              <li
-                key={i.id}
-                className="rounded-xl border-2 border-border px-3 py-1.5 text-sm font-extrabold text-muted-foreground"
-              >
-                <img className="h-5 w-7 rounded object-cover" src={i.bandera} alt={`Bandera de ${i.nombre[lang]}`} /> {i.nombre[lang]}
-              </li>
-            ))}
-          </ul>
         </div>
         <div className="order-1 flex justify-center md:order-2">
           <div className="rounded-full bg-primary-soft p-6">
-            <Penguin className="h-56 w-56 md:h-72 md:w-72" float priority />
+            <Penguin className="h-64 w-64 md:h-80 md:w-80" float priority />
           </div>
         </div>
       </main>
@@ -116,6 +104,9 @@ function Dashboard({ userId }: { userId: number }) {
     queryKey: ["actividad", userId, formatDate(desde), formatDate(hasta)],
     queryFn: () => api.actividad(userId, formatDate(desde), formatDate(hasta)),
   });
+  const inscripcionesVisibles = (inscripciones.data ?? []).filter(
+    (inscripcion) => inscripcion.idioma_codigo !== "es",
+  );
 
   if (usuario.isLoading || inscripciones.isLoading || insignias.isLoading || amigos.isLoading || ranking.isLoading || actividad.isLoading) return <p>{t("home.loading")}</p>;
   if (usuario.isError || !usuario.data || inscripciones.isError || insignias.isError || amigos.isError || ranking.isError || actividad.isError) return <p>{t("home.loadError")}</p>;
@@ -130,9 +121,9 @@ function Dashboard({ userId }: { userId: number }) {
         <section className="space-y-4">
         <h2 className="text-2xl font-extrabold">{t("home.continue")}</h2>
         <p className="font-bold text-muted-foreground">{t("home.greeting").replace("{name}", usuario.data.nombre)}</p>
-        {inscripciones.data?.length ? (
+        {inscripcionesVisibles.length ? (
           <div className="grid gap-4 sm:grid-cols-2">
-            {inscripciones.data.map((inscripcion) => (
+            {inscripcionesVisibles.map((inscripcion) => (
               <ContinueCourse key={inscripcion.curso_id} userId={userId} inscripcion={inscripcion} />
             ))}
           </div>

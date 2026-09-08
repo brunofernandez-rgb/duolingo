@@ -82,14 +82,14 @@ function Cursos({ user }: { user: { id: string } }) {
   );
   const cursosCompletados = cursos.filter((curso) => {
     const progreso = progresoPorCurso.get(curso.id);
-    return inscripciones.has(curso.id) && progreso && progreso.total_lecciones > 0 && progreso.completadas >= progreso.total_lecciones;
+    return curso.idioma_codigo !== "es" && inscripciones.has(curso.id) && progreso && progreso.total_lecciones > 0 && progreso.completadas >= progreso.total_lecciones;
   });
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-extrabold">{t("course.choose")}</h1>
 
-      {(idiomasQuery.data ?? []).map((idioma) => {
+      {(idiomasQuery.data ?? []).filter((idioma) => idioma.codigo !== "es").map((idioma) => {
         const cursosIdioma = cursos.filter(
             (curso) => inscripciones.has(curso.id) &&
               !cursosCompletados.some((completado) => completado.id === curso.id) &&

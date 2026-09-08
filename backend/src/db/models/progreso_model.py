@@ -11,3 +11,6 @@ class Progreso(Base):
     puntaje = Column(Integer, nullable=False, default=0, server_default="0")
     completada = Column(Boolean, nullable=False, default=False, server_default="false")
     fecha = Column(DateTime, nullable=False, server_default=func.now())
+    # Snapshot at completion: retries and later reward edits must not rewrite XP history.
+    fecha_completada = Column(DateTime, nullable=True)
+    xp_obtenida = Column(Integer, nullable=False, default=0, server_default="0")

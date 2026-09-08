@@ -6,6 +6,7 @@ from src.repositories.usuario_repository import UsuariosRepository
 from src.utils.hash import hash_password, verify_password
 
 ADMIN_EMAIL = "admin@gmail.com"
+RANKING_LIMIT = 50
 
 
 class UsuarioService:
@@ -29,8 +30,14 @@ class UsuarioService:
                 to_usuario_response(usuario).model_copy(update={"xp_total": xp})
                 for usuario, xp in self.repo.get_ranking_semanal()
                 if usuario.email.lower() != ADMIN_EMAIL
-            ]
-        return [to_usuario_response(u) for u in self.repo.get_ranking(periodo) if u.email.lower() != ADMIN_EMAIL]
+            ][:RANKING_LIMIT]
+        # One extra record accounts for the administrator, who is excluded
+        # from public rankings after sorting.
+        return [
+            to_usuario_response(usuario)
+            for usuario in self.repo.get_ranking(periodo, limit=RANKING_LIMIT + 1)
+            if usuario.email.lower() != ADMIN_EMAIL
+        ][:RANKING_LIMIT]
 
     def list_all(self) -> list[UsuarioResponseDTO]:
         return [to_usuario_response(usuario) for usuario in self.repo.get_ranking()]

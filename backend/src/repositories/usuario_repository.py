@@ -60,18 +60,17 @@ class UsuariosRepository:
     def get_ranking_semanal(self) -> list[tuple[Usuario, int]]:
         inicio_semana = inicio_de_semana(datetime.now())
         progresos = (
-            self.db.query(Progreso.usuario_id, Progreso.leccion_id, Leccion.xp_recompensa)
-            .join(Leccion, Progreso.leccion_id == Leccion.id)
-            .filter(Progreso.completada.is_(True), Progreso.fecha >= inicio_semana)
+            self.db.query(Progreso.usuario_id, Progreso.leccion_id, Progreso.xp_obtenida)
+            .filter(Progreso.completada.is_(True), Progreso.fecha_completada >= inicio_semana)
             .all()
         )
         xp_semanal: dict[int, int] = {}
         lecciones_contadas: set[tuple[int, int]] = set()
-        for usuario_id, leccion_id, xp_recompensa in progresos:
+        for usuario_id, leccion_id, xp_obtenida in progresos:
             clave = (usuario_id, leccion_id)
             if clave not in lecciones_contadas:
                 lecciones_contadas.add(clave)
-                xp_semanal[usuario_id] = xp_semanal.get(usuario_id, 0) + xp_recompensa
+                xp_semanal[usuario_id] = xp_semanal.get(usuario_id, 0) + xp_obtenida
         usuarios = self.db.query(Usuario).all()
         return sorted(
             [(usuario, int(xp_semanal.get(usuario.id, 0))) for usuario in usuarios],

@@ -16,7 +16,12 @@ function optionsFor(question: Vocabulary, vocabulary: Vocabulary[], index: numbe
     .filter((item) => item.translation !== question.translation)
     .slice(index % 2, (index % 2) + 2)
     .map((item) => item.translation);
-  return [question.translation, ...distractors].sort(() => 0.5 - Math.random());
+  const correctPosition = index % (distractors.length + 1);
+  return [
+    ...distractors.slice(0, correctPosition),
+    question.translation,
+    ...distractors.slice(correctPosition),
+  ];
 }
 
 export const Route = createFileRoute("/leccion/$leccionId")({
